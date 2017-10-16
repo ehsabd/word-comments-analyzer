@@ -34,6 +34,9 @@ namespace WordCommentsAnalyzer
         private List<MyComment> CommentsList = new List<MyComment>();
         private List<MyComment> FilteredComments = new List<MyComment>();
         private string filtered_by = "";
+        private short numClickedNodes = 0;
+        private List<short> ClickedNodesHistory = new List<short>();
+        private int minutesPassed = 0;
         public Main()
         {
             InitializeComponent();
@@ -126,15 +129,7 @@ namespace WordCommentsAnalyzer
                                    var commentRangeStart = commentRangeStarts.Where(cr => (cr.Id.ToString() == id))
                                         .FirstOrDefault(); ;
                                     string ref_text = "";
-                                    if (commentRangeStart != null)
-                                    {
-                                        var elms = CommentRangeElements(commentRangeStart);
-                                        foreach (var elm in elms)
-                                        {
-                                            ref_text += elm.InnerText;
-                                        }
-                                    }
-                    
+                                    ref_text = GetReferenceText(commentRangeStart);
                                     CommentsList.Add(new MyComment
                                     {
                                         Guid=Guid.NewGuid().ToString(),
@@ -186,6 +181,7 @@ namespace WordCommentsAnalyzer
         {
             treeView1.Nodes.Clear();
             treeView1.BeginUpdate();
+            var treeNodes = new List<TreeNode>();
             for (var i= 0;i< FilteredComments.Count;i++)
             {
                 var comment = FilteredComments[i];
@@ -194,31 +190,32 @@ namespace WordCommentsAnalyzer
                 
                    
                 subcomms = comment.Text.Split('|');
-                var head_ind = 0;
-                var file= string.Format("[{0}]", comment.FileName);
-                //TODO: add all permutations of subcomments to comments array
+                for (var headInd = 0; headInd < subcomms.Length; headInd++)
+                {
+                    var file = string.Format("[{0}]", comment.FileName);
                     var node = new TreeNode();
                     node.Name = comment.Guid;
                     for (var j = 0; j < subcomms.Length; j++)
                     {
-                        if (j == head_ind)
+                        if (j == headInd)
                         {
                             node.Text = subcomms[j] + file;
                             continue;
                         }
-
                         //  System.Diagnostics.Debug.WriteLine(subcomms[j]);
                         node.Nodes.Add(subcomms[j]);
                     }
-                    treeView1.Nodes.Add(node);
-                
-
+                    treeNodes.Add(node);
+                }
             }
+            treeNodes = treeNodes.OrderBy(n => n.Text).ToList();
+            foreach (var n in treeNodes)
+            {
+                treeView1.Nodes.Add(n);
+            }
+
             treeView1.EndUpdate();
-            /*  if (treeView1.Nodes.Count > 0)
-              {
-                  treeView1.Nodes[treeView1.Nodes.Count - 1].EnsureVisible();
-              }*/
+       
             labelNumberOfNodes.Text = string.Format("{0} Nodes", treeView1.Nodes.Count);
         }
         private void textFilter_TextChanged(object sender, EventArgs e)
@@ -243,6 +240,23 @@ namespace WordCommentsAnalyzer
         }
 
       
+        public static string GetReferenceText(CommentRangeStart commentRangeStart)
+        {
+            string ref_text = "";
+            if (commentRangeStart != null)
+            {
+                var elms = CommentRangeElements(commentRangeStart);
+                foreach (var elm in elms)
+                {
+                    ref_text += elm.InnerText;
+                    if (elm.GetType() == typeof(Paragraph))
+                    {
+                        ref_text += ' ';
+                    }
+                }
+            }
+            return ref_text;
+        }
 
         public static IEnumerable<OpenXmlElement> CommentRangeElements(CommentRangeStart commentStart, OpenXmlElement searchStartElement=null)
         {
@@ -327,6 +341,7 @@ namespace WordCommentsAnalyzer
         {
             textComment.Text = System.Text.RegularExpressions.Regex.Replace(e.Node.Text, @"\[.*\]", "");
             var guid = e.Node.Name;
+            System.Diagnostics.Debug.WriteLine(guid);
             var nodeNumber = 0;
             if (guid == "")
             {
@@ -335,6 +350,7 @@ namespace WordCommentsAnalyzer
             }
             else
             {
+                numClickedNodes++;
                 e.Node.Expand();
                 nodeNumber = e.Node.Index + 1;
             }
@@ -364,5 +380,8 @@ namespace WordCommentsAnalyzer
         {
 
         }
+
+        
+
     }
 }
