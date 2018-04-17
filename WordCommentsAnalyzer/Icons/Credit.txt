@@ -1,0 +1,5 @@
+The applicatoin Icon is made with mixing the Comment Icon taken from https://en.m.wikipedia.org/wiki/File:Comments_alt_font_awesome.svg (CC BY-SA 3.0)
+
+Gnome Icons (copy, delete, list-add) are By GNOME icon artists (HTTP / FTP) [CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0) or LGPL (https://www.gnu.org/copyleft/lgpl.html)], via Wikimedia Commons
+
+32px-Text-x-generic_with_pencil.svg.png is By The people from the Tango! project, modifications by User:Father Goose. - File:Edit-find-replace.svg minus the magnifying glass., Public Domain, https://commons.wikimedia.org/w/index.php?curid=3164300
