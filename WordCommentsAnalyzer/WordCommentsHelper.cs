@@ -11,6 +11,34 @@ namespace WordCommentsAnalyzer
 {
     class WordCommentsHelper
     {
+        public static IEnumerable<Comment> GetWordDocumentComments(WordprocessingDocument wordDoc)
+        {
+            WordprocessingCommentsPart commentsPart =
+                wordDoc.MainDocumentPart
+                       .WordprocessingCommentsPart;
+
+            if (commentsPart == null || commentsPart.Comments == null)
+            {
+                return Enumerable.Empty<Comment>();
+            }
+            else
+            {
+                return commentsPart.Comments.Elements<Comment>();
+            }
+
+        }
+        public static List<string> ExtractCodesFromComment(Comment comment)
+        {
+            return comment.Descendants<Paragraph>()
+                .Select(el => el.InnerText.Trim())
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .ToList();
+        }
+        /*The methods GetReferenceText, CommentRangeElements, and IsMatchingCommentEnd are adapted from
+        the answer to "Getting OpenXmlElements between CommentRangeStart and CommentRangeEnd - Stack Overflow" at
+        https://stackoverflow.com/questions/12175491/getting-openxmlelements-between-commentrangestart-and-commentrangeend,
+        copyright 2012 by Mike B, licensed under CC BY-SA 3.0 with attribution required (https://creativecommons.org/licenses/by-sa/3.0/)
+        */
         public static string GetReferenceText(WordprocessingDocument wordDoc, string commentId)
         {
             
@@ -35,7 +63,6 @@ namespace WordCommentsAnalyzer
             }
             return refText;
         }
-
         public static IEnumerable<OpenXmlElement> CommentRangeElements(CommentRangeStart commentStart, OpenXmlElement searchStartElement = null)
         {
             List<OpenXmlElement> commentedNodes = new List<OpenXmlElement>();
@@ -108,5 +135,7 @@ namespace WordCommentsAnalyzer
             }
             return false;
         }
+
+      
     }
   }

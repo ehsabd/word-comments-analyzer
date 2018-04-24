@@ -19,15 +19,9 @@ namespace WordCommentsAnalyzer
             {
                 using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(fs, false))
                 {
-                    //The following code retrieves comments from each document: 
-                    WordprocessingCommentsPart commentsPart = 
-                        wordDoc.MainDocumentPart
-                               .WordprocessingCommentsPart;
 
-
-                    if (commentsPart != null && commentsPart.Comments != null)
-                    {
-                        var allComments = commentsPart.Comments.Elements<Comment>();
+                    var allComments = WordCommentsHelper.GetWordDocumentComments(wordDoc);
+                            
                         foreach (Comment comment in allComments)
                         {
                             var id = comment.Id.ToString();  
@@ -41,11 +35,8 @@ namespace WordCommentsAnalyzer
                                 ReferenceText = refText
                             });
 
-                            var commentParas = comment.Descendants<Paragraph>()
-                                                      .Select(el => el.InnerText.Trim())
-                                                      .Where(s => !string.IsNullOrWhiteSpace(s));
-
-                            foreach (var p in commentParas)
+                            var codes = WordCommentsHelper.ExtractCodesFromComment(comment);
+                            foreach (var p in codes)
                             {
                                 var code = new Models.Code { Value = p };
                                 if (!Models.CodesDictionary.ContainsKey(p))
@@ -58,7 +49,7 @@ namespace WordCommentsAnalyzer
                             dataExtractCounter++;
 
                         }
-                    }
+                    
                 }
             }
         }
