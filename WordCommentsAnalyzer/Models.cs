@@ -14,7 +14,6 @@ namespace WordCommentsAnalyzer
             CodesInHierarchy.Clear(); 
             CodesDictionary.Clear(); 
             DataExtracts.Clear(); 
-            DataExtract_Code_Maps.Clear(); 
         }
 
         public class DataExtract
@@ -24,19 +23,18 @@ namespace WordCommentsAnalyzer
             public string ReferenceText { get; set; }
         }
 
-        public class DataExtract_Code_Map
-        {
-            public Code Code { get; set; }
-            public string DataExtractId { get; set; }
-        }
-
         public class Code
         {
             public string Value { get; set; }
+            /// <summary>
+            /// From version 2.0.3.0 onward, We store DataExtractIds instead of DataExtract_Code_Maps in the code, so that we could easily look them up in codes dictionary
+            /// </summary>
+            public List<string> DataExtractsIds { get; set;}
             public List<DataExtract> DataExtracts
             {
-                get {   
-                      return DataExtractsQuery.ToList();
+                get
+                {
+                    return DataExtractsQuery.ToList();
                 }
             }
 
@@ -44,7 +42,7 @@ namespace WordCommentsAnalyzer
             {
                 get
                 {  
-                    return DataExtractsQuery.Count();
+                    return DataExtractsIds.Count();
                 }
             }
 
@@ -52,11 +50,9 @@ namespace WordCommentsAnalyzer
             {
                 get
                 {
-                    var q = from m in DataExtract_Code_Maps
-                            join d in Models.DataExtracts on m.DataExtractId equals d.Id
-                            where m.Code.Value == this.Value
+                    var q = from id in DataExtractsIds
+                            join d in Models.DataExtracts on id equals d.Id
                             select d;
-                    
                     return q;
                 }
             }
@@ -67,20 +63,28 @@ namespace WordCommentsAnalyzer
         {
             public Code Code { get; set; }
             public int Frequency { get; set; }
+            public bool IsSelected { get; set; }
         }
 
-        // public static Dictionary<string, List<DataExtract>> DataExtractsDictionary
-        //     = new Dictionary<string, List<DataExtract>>();
-
-        public static List<DataExtract_Code_Map> DataExtract_Code_Maps = new List<DataExtract_Code_Map>();
         public static List<DataExtract> DataExtracts = new List<DataExtract>();
         public static Dictionary<string, Code> CodesDictionary
             = new Dictionary<string, Code>();
         
         /// <summary>
         /// to know which codes (from document codes) are present in the code hierarchy 
+        /// this needs to be an observable collection because we only want to change color of 
+        /// codes that are changed. It may have a better performance than checking every code after a change in 
+        /// hierarchy.
         /// </summary>
         public static ObservableCollection<string> CodesInHierarchy = new ObservableCollection<string>();
+
+        /// <summary>
+        /// To know which codes are seleted. This does not need to be observable because selected codes are usually reset on every selection
+        /// and updated after selection.
+        /// </summary>
+        public static List<string> SelectedCodes = new List<string>();
+       
+
 
         public static List<CodeStat> CodeStatList = new List<CodeStat>();
         public static List<CodeStat> FilteredCodeStatList = new List<CodeStat>();
@@ -118,8 +122,9 @@ namespace WordCommentsAnalyzer
                             Frequency = kv.Value.DataExtractsCount
                         }
                         ).ToList();
-            
+
         }
+
         public static bool CodeExists (string code)
         {
             return Models.CodesDictionary.ContainsKey(code); 

@@ -40,10 +40,8 @@ namespace WordCommentsAnalyzer
         private const string NewHierarchyNodeName = "New Node";
 
        
-        
-        
         private string filteredBy = "";
-        
+        private string CodeHierarchyNodesText = "";
         private static string WorkingDirectory;
 
         private int checkCodeIndex = 0;
@@ -114,6 +112,25 @@ namespace WordCommentsAnalyzer
             }
         }
 
+        private void CodesInView_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            //System.Diagnostics.Debug.WriteLine("Collection Changed");
+            if (e.OldItems != null)
+            {
+               /* foreach (var item in e.OldItems)
+                {
+                    SetCodeBackground(item.ToString(), System.Drawing.Color.White);
+                }*/
+            }
+            if (e.NewItems != null)
+            {
+                /*foreach (var item in e.NewItems)
+                {
+                    SetCodeBackground(item.ToString(), System.Drawing.Color.LightGoldenrodYellow);
+                }*/
+            }
+        }
+
         private void SetCodeBackground(string code,System.Drawing.Color color)
         {
             var found = listViewCodes.Items.Find(code,false);
@@ -124,18 +141,21 @@ namespace WordCommentsAnalyzer
         }
 
 
-
+        public void SetWorkingDirectory(string path)
+        {
+           
+            WorkingDirectory = path;
+            textWorkingDir.Text = WorkingDirectory ?? "";
+            RegistryKey key = Application.UserAppDataRegistry;
+            key.SetValue("wd", path);
+        }
         private void buttonBrowse_Click(object sender, EventArgs e)
         {
             var result = folderBrowserDialog1.ShowDialog();
             if (result == DialogResult.OK)
             {
                 var path = folderBrowserDialog1.SelectedPath;
-                WorkingDirectory = path;
-                textWorkingDir.Text = WorkingDirectory ?? "";
-                //Registry.SetValue(app_reg_key, "wd",path);
-                RegistryKey key = Application.UserAppDataRegistry;
-                key.SetValue("wd", path);
+                SetWorkingDirectory(path);
             }
         }
 
@@ -143,55 +163,9 @@ namespace WordCommentsAnalyzer
         {
             textLog.Text = "";
             textFilter.Text = "";
-
-            
-
-            System.IO.FileInfo[] files = null;
-            // First, process all the files directly under this folder
-            try
+            if (!bwAnalyze.IsBusy)
             {
-                var wd = new DirectoryInfo(WorkingDirectory);
-                files = wd.GetFiles("*.docx");
-            }
-            // This is thrown if even one of the files requires permissions greater
-            // than the application provides.
-            catch (UnauthorizedAccessException ex)
-            {
-                // This code just writes out the message and continues to recurse.
-                // You may decide to do something different here. For example, you
-                // can try to elevate your privileges and access the file again.
-                textLog.Text += Environment.NewLine + "Error getting directory info, "+ ex.Message;
-
-
-            }
-
-            if (files != null)
-            {
-
-                Models.ClearData();
-
-                panelMiddle.Enabled = true;
-
-                foreach (System.IO.FileInfo fi in files)
-                {
-                    if (fi.Name.StartsWith("~")) continue;
-                    if (fi.Name.ToLower() == CodeHierarchyFileName) continue;
-                    try {
-                        ExtractDataFromWordFile(fi);
-                    }
-                    catch(Exception ex)
-                    {
-                        textLog.Text += Environment.NewLine + string.Format("{0}: {1}", fi.Name, ex.Message);
-                    }
-                }
-
-          
-                Models.ComputeCodeStats();
-                Models.SortCodeStatListByFrequency(textCulture.Text);
-                filteredBy = textFilter.Text;
-                bgwFilterCodes.RunWorkerAsync();
-                ReadCodeHierarchyFile();
-
+                bwAnalyze.RunWorkerAsync();
             }
         }
 
@@ -209,24 +183,34 @@ namespace WordCommentsAnalyzer
                 
             }
         }
+
+
         private void UpdateCodesListView()
         {
-            listViewCodes.Items.Clear();
-            listViewCodes.BeginUpdate();
-            foreach (var cs in Models.FilteredCodeStatList)
-            {
-                var code = cs.Code.Value;
-                var item = new ListViewItem(new string[] { code, cs.Frequency.ToString() });
-                item.Name = code;
-                item.BackColor = (Models.CodesInHierarchy.Contains(code)) ?
-                    System.Drawing.Color.LightGoldenrodYellow : 
-                    System.Drawing.Color.White;
-                listViewCodes.Items.Add(item);
-            }
+              listViewCodes.Items.Clear();
+              listViewCodes.BeginUpdate();
 
-            listViewCodes.EndUpdate();
-       
-            labelNumberOfNodes.Text = string.Format("{0} Codes", listViewCodes.Items.Count);
+              foreach (var cs in Models.FilteredCodeStatList)
+              {
+                  var code = cs.Code.Value;
+                  var item = new ListViewItem(new string[] { code, cs.Frequency.ToString() });
+                  item.Name = code;
+                  item.BackColor = (
+                      Models.SelectedCodes.Contains(code)) ?
+                      System.Drawing.Color.Yellow 
+                      : 
+                      (
+                      (Models.CodesInHierarchy.Contains(code))? 
+                      System.Drawing.Color.LightGoldenrodYellow
+                      :
+                      System.Drawing.Color.White
+                      );
+                  listViewCodes.Items.Add(item);
+              }
+
+              listViewCodes.EndUpdate();
+
+              labelNumberOfNodes.Text = string.Format("{0} Codes", listViewCodes.Items.Count);
         }
         private void textFilter_TextChanged(object sender, EventArgs e)
         {
@@ -330,17 +314,18 @@ namespace WordCommentsAnalyzer
         {
             textCode.Text = e.Node.Name;
             var recursiveChildNodeNames = TreeNodeRecursive.GetTreeNodeNamesRecursive(e.Node);
-            var dataExtractIds = (from name in recursiveChildNodeNames
-                         join m in Models.DataExtract_Code_Maps on name equals m.Code.Value
-                         select m.DataExtractId).Distinct();
+            var codeObjects = (from name in recursiveChildNodeNames
+                                  join pair in Models.CodesDictionary
+                                  on name equals pair.Key
+                                  select pair.Value);
+
+            var dataExtractIds = codeObjects.SelectMany(c => c.DataExtractsIds).Distinct();
+
             var query = from id in dataExtractIds
                         join d in Models.DataExtracts on id equals d.Id
                         select d;
 
             UpdateRefListView(query.ToList());
-
-            
-
 
         }
 
@@ -420,21 +405,43 @@ namespace WordCommentsAnalyzer
         private void UpdateRefListView(List<Models.DataExtract> dataExtracts)
         {
             listViewRef.Items.Clear();
+            var maxLength = 0;
+            var textWithMaxLength = "";
             foreach (var dxt in dataExtracts)
             {
                 var item = listViewRef.Items.Add(dxt.ReferenceText);
+                if (dxt.ReferenceText.Length > maxLength)
+                {
+                    maxLength = dxt.ReferenceText.Length;
+                    textWithMaxLength = dxt.ReferenceText;
+                }
                 item.SubItems.Add(dxt.FileName);
+                item.Name = dxt.Id;
             }
             labelRef.Text = Regex.Replace(labelRef.Text, @"\(.*\)", string.Format("({0})",dataExtracts.Count()));
+            /*TODO this solution does not work, as listview always clips the text, even if the tile is large enough.
+            I suggest using flow layout with auto creating text controls inside.
+            if (maxLength == 0) return;
+            var font = listViewRef.Font;
+            Image fakeImage = new Bitmap(1, 1); //As we cannot use CreateGraphics() in a class library, so the fake image is used to load the Graphics.
+            Graphics graphics = Graphics.FromImage(fakeImage);
+            SizeF size = graphics.MeasureString(textWithMaxLength, font);
+            var area = Convert.ToInt32(size.Height * size.Width);
+            var tileW = 300;
+            var tileH = area / tileW;
+            listViewRef.TileSize = new Size(tileW, tileH);*/
+            
         }
 
         private void timerAutoSaveHierarchy_Tick(object sender, EventArgs e)
         {
+            if (treeViewHierarchy.Nodes.Count == 0) return;
             WriteCodeHierarchyFile();
         }
 
         private void buttonSave_Click(object sender, EventArgs e)
         {
+            if (treeViewHierarchy.Nodes.Count == 0) return;
             WriteCodeHierarchyFile();
         }
 
@@ -447,27 +454,27 @@ namespace WordCommentsAnalyzer
             }
         }
 
-        private void timerCheckCodes_Tick(object sender, EventArgs e)
+        private void bwAnalyze_DoWork(object sender, DoWorkEventArgs e)
         {
-            //We check only one code for each tick to not place burden on CPU
-            if (listViewCodes.Items.Count <= checkCodeIndex)
+            AnalyzeFiles(WorkingDirectory, bwAnalyze);
+            
+        }
+
+        private void bwAnalyze_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            if (e.UserState != null)
             {
-                checkCodeIndex = 0;
-                return;
+                textLog.Text += Environment.NewLine + e.UserState.ToString();
             }
-            else
-            {
-                var code = listViewCodes.Items[checkCodeIndex].Text;
-                if (Models.CodesInHierarchy.Contains(code))
-                {
-                    listViewCodes.Items[checkCodeIndex].BackColor = System.Drawing.Color.LightSeaGreen;
-                }
-                else
-                {
-                    listViewCodes.Items[checkCodeIndex].BackColor = System.Drawing.Color.White;
-                }
-                checkCodeIndex++;
-            }
+            progressBar1.Value = e.ProgressPercentage;
+        }
+
+        private void bwAnalyze_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            panelMiddle.Enabled = true;
+            filteredBy = textFilter.Text;
+            bgwFilterCodes.RunWorkerAsync();
+            ReadCodeHierarchyFile();
         }
     }
 }

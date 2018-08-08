@@ -66,6 +66,7 @@
             this.labelCode = new System.Windows.Forms.Label();
             this.buttonCopyComment = new System.Windows.Forms.Button();
             this.panelSeparator = new System.Windows.Forms.Panel();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.buttonAnalyze = new System.Windows.Forms.Button();
             this.textWorkingDir = new System.Windows.Forms.TextBox();
             this.buttonBrowse = new System.Windows.Forms.Button();
@@ -75,6 +76,7 @@
             this.textCulture = new System.Windows.Forms.TextBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.timerAutoSaveHierarchy = new System.Windows.Forms.Timer(this.components);
+            this.bwAnalyze = new System.ComponentModel.BackgroundWorker();
             this.panelParent.SuspendLayout();
             this.panelNode.SuspendLayout();
             this.panelNodeTop.SuspendLayout();
@@ -85,6 +87,7 @@
             this.panelReferenceTextToolbar.SuspendLayout();
             this.panelSidebarTop.SuspendLayout();
             this.panelCommentTextToolbar.SuspendLayout();
+            this.panelSeparator.SuspendLayout();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -123,9 +126,9 @@
             this.panelParent.Controls.Add(this.splitterMiddleRight);
             this.panelParent.Controls.Add(this.panelSidebar);
             this.panelParent.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelParent.Location = new System.Drawing.Point(0, 111);
+            this.panelParent.Location = new System.Drawing.Point(0, 110);
             this.panelParent.Name = "panelParent";
-            this.panelParent.Size = new System.Drawing.Size(1008, 537);
+            this.panelParent.Size = new System.Drawing.Size(1008, 538);
             this.panelParent.TabIndex = 16;
             // 
             // panelNode
@@ -134,7 +137,7 @@
             this.panelNode.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelNode.Location = new System.Drawing.Point(0, 59);
             this.panelNode.Name = "panelNode";
-            this.panelNode.Size = new System.Drawing.Size(313, 478);
+            this.panelNode.Size = new System.Drawing.Size(313, 479);
             this.panelNode.TabIndex = 7;
             // 
             // listViewCodes
@@ -146,7 +149,7 @@
             this.listViewCodes.FullRowSelect = true;
             this.listViewCodes.Location = new System.Drawing.Point(0, 0);
             this.listViewCodes.Name = "listViewCodes";
-            this.listViewCodes.Size = new System.Drawing.Size(313, 478);
+            this.listViewCodes.Size = new System.Drawing.Size(313, 479);
             this.listViewCodes.TabIndex = 17;
             this.listViewCodes.UseCompatibleStateImageBehavior = false;
             this.listViewCodes.View = System.Windows.Forms.View.Details;
@@ -199,7 +202,7 @@
             this.splitterLeftMiddle.Dock = System.Windows.Forms.DockStyle.Right;
             this.splitterLeftMiddle.Location = new System.Drawing.Point(313, 0);
             this.splitterLeftMiddle.Name = "splitterLeftMiddle";
-            this.splitterLeftMiddle.Size = new System.Drawing.Size(4, 537);
+            this.splitterLeftMiddle.Size = new System.Drawing.Size(4, 538);
             this.splitterLeftMiddle.TabIndex = 11;
             this.splitterLeftMiddle.TabStop = false;
             // 
@@ -211,7 +214,7 @@
             this.panelMiddle.Enabled = false;
             this.panelMiddle.Location = new System.Drawing.Point(317, 0);
             this.panelMiddle.Name = "panelMiddle";
-            this.panelMiddle.Size = new System.Drawing.Size(367, 537);
+            this.panelMiddle.Size = new System.Drawing.Size(367, 538);
             this.panelMiddle.TabIndex = 12;
             // 
             // treeViewHierarchy
@@ -223,7 +226,7 @@
             this.treeViewHierarchy.Location = new System.Drawing.Point(0, 36);
             this.treeViewHierarchy.Margin = new System.Windows.Forms.Padding(15);
             this.treeViewHierarchy.Name = "treeViewHierarchy";
-            this.treeViewHierarchy.Size = new System.Drawing.Size(367, 501);
+            this.treeViewHierarchy.Size = new System.Drawing.Size(367, 502);
             this.treeViewHierarchy.TabIndex = 7;
             this.treeViewHierarchy.BeforeLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this.treeViewHierarchy_BeforeLabelEdit);
             this.treeViewHierarchy.AfterLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this.treeViewHierarchy_AfterLabelEdit);
@@ -310,7 +313,7 @@
             this.splitterMiddleRight.Dock = System.Windows.Forms.DockStyle.Right;
             this.splitterMiddleRight.Location = new System.Drawing.Point(684, 0);
             this.splitterMiddleRight.Name = "splitterMiddleRight";
-            this.splitterMiddleRight.Size = new System.Drawing.Size(4, 537);
+            this.splitterMiddleRight.Size = new System.Drawing.Size(4, 538);
             this.splitterMiddleRight.TabIndex = 4;
             this.splitterMiddleRight.TabStop = false;
             // 
@@ -321,7 +324,7 @@
             this.panelSidebar.Dock = System.Windows.Forms.DockStyle.Right;
             this.panelSidebar.Location = new System.Drawing.Point(688, 0);
             this.panelSidebar.Name = "panelSidebar";
-            this.panelSidebar.Size = new System.Drawing.Size(320, 537);
+            this.panelSidebar.Size = new System.Drawing.Size(320, 538);
             this.panelSidebar.TabIndex = 9;
             // 
             // panelSidebarBottom
@@ -331,7 +334,7 @@
             this.panelSidebarBottom.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelSidebarBottom.Location = new System.Drawing.Point(0, 93);
             this.panelSidebarBottom.Name = "panelSidebarBottom";
-            this.panelSidebarBottom.Size = new System.Drawing.Size(320, 444);
+            this.panelSidebarBottom.Size = new System.Drawing.Size(320, 445);
             this.panelSidebarBottom.TabIndex = 17;
             // 
             // listViewRef
@@ -343,7 +346,7 @@
             this.listViewRef.GridLines = true;
             this.listViewRef.Location = new System.Drawing.Point(0, 36);
             this.listViewRef.Name = "listViewRef";
-            this.listViewRef.Size = new System.Drawing.Size(320, 408);
+            this.listViewRef.Size = new System.Drawing.Size(320, 409);
             this.listViewRef.TabIndex = 17;
             this.listViewRef.TileSize = new System.Drawing.Size(300, 60);
             this.listViewRef.UseCompatibleStateImageBehavior = false;
@@ -446,11 +449,21 @@
             // panelSeparator
             // 
             this.panelSeparator.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.panelSeparator.Controls.Add(this.progressBar1);
             this.panelSeparator.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelSeparator.Location = new System.Drawing.Point(0, 107);
             this.panelSeparator.Name = "panelSeparator";
-            this.panelSeparator.Size = new System.Drawing.Size(1008, 4);
+            this.panelSeparator.Size = new System.Drawing.Size(1008, 3);
             this.panelSeparator.TabIndex = 17;
+            // 
+            // progressBar1
+            // 
+            this.progressBar1.BackColor = System.Drawing.Color.White;
+            this.progressBar1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.progressBar1.Location = new System.Drawing.Point(0, 0);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(1008, 3);
+            this.progressBar1.TabIndex = 0;
             // 
             // buttonAnalyze
             // 
@@ -541,6 +554,13 @@
             this.timerAutoSaveHierarchy.Interval = 60000;
             this.timerAutoSaveHierarchy.Tick += new System.EventHandler(this.timerAutoSaveHierarchy_Tick);
             // 
+            // bwAnalyze
+            // 
+            this.bwAnalyze.WorkerReportsProgress = true;
+            this.bwAnalyze.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bwAnalyze_DoWork);
+            this.bwAnalyze.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bwAnalyze_ProgressChanged);
+            this.bwAnalyze.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bwAnalyze_RunWorkerCompleted);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -568,6 +588,7 @@
             this.panelSidebarTop.PerformLayout();
             this.panelCommentTextToolbar.ResumeLayout(false);
             this.panelCommentTextToolbar.PerformLayout();
+            this.panelSeparator.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.ResumeLayout(false);
@@ -621,6 +642,8 @@
         private System.Windows.Forms.Timer timerAutoSaveHierarchy;
         private System.Windows.Forms.Button buttonSave;
         private System.Windows.Forms.Button buttonEditHierarchyNode;
+        private System.Windows.Forms.ProgressBar progressBar1;
+        private System.ComponentModel.BackgroundWorker bwAnalyze;
     }
 }
 
