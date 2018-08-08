@@ -13,3 +13,4 @@
 - Fix automatic backup so that it only saves the code hierarchy file when there are changes in the hierarchy.
 - Improved code statistics calculation performance
 - The user interface does not hang when doing the analysis (implementing a BackgroundWorker)
+
