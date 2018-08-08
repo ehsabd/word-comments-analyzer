@@ -72,13 +72,14 @@ namespace WordCommentsAnalyzer
             {
                 using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(fs, false))
                 {
-
-                    var allComments = WordCommentsHelper.GetWordDocumentComments(wordDoc);
-                            
+                    var main = wordDoc.MainDocumentPart;
+                    var allComments = WordCommentsHelper.GetWordDocumentComments(main);
+                           
                         foreach (Comment comment in allComments)
                         {
-                            var id = comment.Id.ToString();  
-                            var refText = WordCommentsHelper.GetReferenceText(wordDoc, id);
+                            var commentId = comment.Id.ToString();
+                            var commentRangeEls = WordCommentsHelper.GetCommentRangeElements(main, commentId);
+                            var refText = WordCommentsHelper.GetElementsInnerText(commentRangeEls);
 
                             var dataExtractId = fi.Name.UTF8ToBase64Ext() +"_"+ dataExtractCounter;
                             Models.DataExtracts.Add(new Models.DataExtract

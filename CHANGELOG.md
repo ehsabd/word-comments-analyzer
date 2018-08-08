@@ -1,7 +1,5 @@
 # Changelog
 
---- 2.0.3.0 ---
-
 ## [2.0.3.0] 
 ### Added
 - Add ability to drag-n-drop the codes in text editing or word processing programs.

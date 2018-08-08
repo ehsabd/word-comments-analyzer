@@ -11,11 +11,9 @@ namespace WordCommentsAnalyzer
 {
     class WordCommentsHelper
     {
-        public static IEnumerable<Comment> GetWordDocumentComments(WordprocessingDocument wordDoc)
+        public static IEnumerable<Comment> GetWordDocumentComments(MainDocumentPart mainPart)
         {
-            WordprocessingCommentsPart commentsPart =
-                wordDoc.MainDocumentPart
-                       .WordprocessingCommentsPart;
+            WordprocessingCommentsPart commentsPart = mainPart.WordprocessingCommentsPart;
 
             if (commentsPart == null || commentsPart.Comments == null)
             {
@@ -27,6 +25,7 @@ namespace WordCommentsAnalyzer
             }
 
         }
+
         public static List<string> ExtractCodesFromComment(Comment comment)
         {
             return comment.Descendants<Paragraph>()
@@ -34,24 +33,17 @@ namespace WordCommentsAnalyzer
                 .Where(s => !string.IsNullOrWhiteSpace(s))
                 .ToList();
         }
-        /*The methods GetReferenceText, CommentRangeElements, and IsMatchingCommentEnd are adapted from
+        /*The methods GetElementsInnerText, GetCommentRangeElements, and IsMatchingCommentEnd are adapted from
         the answer to "Getting OpenXmlElements between CommentRangeStart and CommentRangeEnd - Stack Overflow" at
         https://stackoverflow.com/questions/12175491/getting-openxmlelements-between-commentrangestart-and-commentrangeend,
         copyright 2012 by Mike B, licensed under CC BY-SA 3.0 with attribution required (https://creativecommons.org/licenses/by-sa/3.0/)
         */
-        public static string GetReferenceText(WordprocessingDocument wordDoc, string commentId)
+        public static string GetElementsInnerText(IEnumerable<OpenXmlElement> elms)
         {
-            
-            var commentRangeStart = wordDoc.MainDocumentPart
-                                      .Document
-                                      .Descendants<CommentRangeStart>()
-                                      .Where(cr => (cr.Id.ToString() == commentId))
-                                      .FirstOrDefault(); ;
-
             string refText = "";
-            if (commentRangeStart != null)
+            if (elms != null)
             {
-                var elms = CommentRangeElements(commentRangeStart);
+
                 foreach (var elm in elms)
                 {
                     refText += elm.InnerText;
@@ -60,10 +52,36 @@ namespace WordCommentsAnalyzer
                         refText += ' ';
                     }
                 }
+                return refText;
             }
-            return refText;
+            else
+            {
+                return "";
+            }
+
         }
-        public static IEnumerable<OpenXmlElement> CommentRangeElements(CommentRangeStart commentStart, OpenXmlElement searchStartElement = null)
+
+        public static IEnumerable<OpenXmlElement> GetCommentRangeElements(MainDocumentPart mainPart, string commentId)
+        {
+            var commentRangeStart = mainPart
+                                    .Document
+                                    .Descendants<CommentRangeStart>()
+                                    .Where(cr => (cr.Id.ToString() == commentId))
+                                    .FirstOrDefault(); ;
+
+            if (commentRangeStart != null)
+            {
+                return CommentRangeElementsRecursive(commentRangeStart);
+
+            }
+            else
+            {
+                return null;
+            }
+
+        }
+
+        private static IEnumerable<OpenXmlElement> CommentRangeElementsRecursive(CommentRangeStart commentStart, OpenXmlElement searchStartElement = null)
         {
             List<OpenXmlElement> commentedNodes = new List<OpenXmlElement>();
             if (searchStartElement == null)
@@ -123,10 +141,11 @@ namespace WordCommentsAnalyzer
             }
             else
             {
-                return CommentRangeElements(commentStart, searchStartElement.Parent);
+                return CommentRangeElementsRecursive(commentStart, searchStartElement.Parent);
             }
         }
-        public static bool IsMatchingCommentEnd(OpenXmlElement element, string commentId)
+
+        private static bool IsMatchingCommentEnd(OpenXmlElement element, string commentId)
         {
             CommentRangeEnd commentEnd = element as CommentRangeEnd;
             if (commentEnd != null)
@@ -136,6 +155,6 @@ namespace WordCommentsAnalyzer
             return false;
         }
 
-      
+
     }
-  }
+}
