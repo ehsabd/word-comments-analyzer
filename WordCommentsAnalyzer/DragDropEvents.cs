@@ -15,7 +15,11 @@ namespace WordCommentsAnalyzer
             // We copy the dragged node when the left mouse button is used. We don't want to remove codes
             if (e.Button == MouseButtons.Left)
             {
-                DoDragDrop(e.Item, DragDropEffects.Copy);
+                var d = new DataObject();
+                d.SetData(typeof(ListViewItem), e.Item);
+                var lvi = (ListViewItem)(e.Item);
+                d.SetData(lvi.Text);
+                DoDragDrop(d, DragDropEffects.Copy);
             }
         }
 

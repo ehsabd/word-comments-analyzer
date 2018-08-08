@@ -34,15 +34,24 @@ namespace WordCommentsAnalyzer
                     backupFilePath);
             }
         }
+        //NOTE this method returns true when no changes, but the true/false value is not currently used. If it were to use in future, the more suitable variable is a status type
         public bool WriteCodeHierarchyFile()
         {
+            
+            var text = TreeNodeRecursive.TreeNodeToTextRecursive(treeViewHierarchy.Nodes[0]);
+            if (text== CodeHierarchyNodesText) //no changes
+            {
+                return true;
+            }
+           
             BackupCopyPreviousCodeHierarchyFile();
             try {
                 
                 using (var writer = new System.IO.StreamWriter(GetCodeHierarchyFilePath))
                 {
-                    writer.Write(TreeNodeRecursive.TreeNodeToTextRecursive(treeViewHierarchy.Nodes[0]));
+                    writer.Write(text);
                 }
+                CodeHierarchyNodesText = text;
                 return true;
             }
             catch (Exception ex)
@@ -62,18 +71,18 @@ namespace WordCommentsAnalyzer
             It makes add/remove nodes both easier and safer.
             */
             treeViewHierarchy.Nodes.Add("root","Code Hierarchy");
-            string allText="";
             try
             {
-                allText = System.IO.File.ReadAllText(GetCodeHierarchyFilePath);
+                CodeHierarchyNodesText = System.IO.File.ReadAllText(GetCodeHierarchyFilePath);
+                
             }
             catch (Exception ex)
             {
                 textLog.Text += string.Join(" ", "Error reading code hierarchy file: ", GetCodeHierarchyFilePath, ex.Message);
             }
-            if (allText == "") return;
+            if (CodeHierarchyNodesText == "") return;
             // Break the file into lines.
-            string[] lines = allText.Split(
+            string[] lines = CodeHierarchyNodesText.Split(
                 new char[] { '\r', '\n' },
                 StringSplitOptions.RemoveEmptyEntries);
             
