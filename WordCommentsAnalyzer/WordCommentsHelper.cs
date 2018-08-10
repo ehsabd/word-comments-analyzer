@@ -28,8 +28,9 @@ namespace WordCommentsAnalyzer
 
         public static List<string> ExtractCodesFromComment(Comment comment)
         {
+            char[] trimChars = { ';', '"', '\'', ',', '.', '،', '؛','\t','\n','\r'};
             return comment.Descendants<Paragraph>()
-                .Select(el => el.InnerText.Trim())
+                .Select(el => el.InnerText.Trim(trimChars))
                 .Where(s => !string.IsNullOrWhiteSpace(s))
                 .ToList();
         }

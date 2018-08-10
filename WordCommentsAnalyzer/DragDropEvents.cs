@@ -10,6 +10,8 @@ namespace WordCommentsAnalyzer
 {
     public partial class Main : Form
     {
+        private static bool isTreeViewHierarchyDoingDragOver = false;
+
         private void listViewCodes_ItemDrag(object sender, ItemDragEventArgs e)
         {
             // We copy the dragged node when the left mouse button is used. We don't want to remove codes
@@ -53,8 +55,10 @@ namespace WordCommentsAnalyzer
             //System.Diagnostics.Debug.WriteLine("treeViewHierarchy_DragOver");
             // Retrieve the client coordinates of the mouse position.
             Point targetPoint = treeViewHierarchy.PointToClient(new Point(e.X, e.Y));
+            isTreeViewHierarchyDoingDragOver = true; // this is to prevent showing reference texts
             // Select the node at the mouse position.
             treeViewHierarchy.SelectedNode = treeViewHierarchy.GetNodeAt(targetPoint);
+            isTreeViewHierarchyDoingDragOver = false;
 
         }
 

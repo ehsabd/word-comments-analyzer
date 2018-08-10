@@ -164,7 +164,7 @@ namespace WordCommentsAnalyzer
             textLog.Text = "";
             textFilter.Text = "";
             textCode.Text = "";
-            listViewRef.Clear();
+            listViewRef.Items.Clear();
             if (!bwAnalyze.IsBusy)
             {
                 bwAnalyze.RunWorkerAsync();
@@ -315,6 +315,8 @@ namespace WordCommentsAnalyzer
 
         private void treeViewHierarchy_AfterSelect(object sender, TreeViewEventArgs e)
         {
+            if (isTreeViewHierarchyDoingDragOver) return;
+
             textCode.Text = e.Node.Name;
             var recursiveChildNodeNames = TreeNodeRecursive.GetTreeNodeNamesRecursive(e.Node);
             var codeObjects = (from name in recursiveChildNodeNames
@@ -385,11 +387,30 @@ namespace WordCommentsAnalyzer
 
         private void bgwFilterCodes_DoWork(object sender, DoWorkEventArgs e)
         {
+            var filterVariants = GetArabicPersianVariants(filteredBy);
             Models.FilteredCodeStatList = Models.CodeStatList
-                .Where(c=>
-                        c.Code.Value.Contains(filteredBy, StringComparison.OrdinalIgnoreCase)
+                .Where(c => filterVariants.Any(f => c.Code.Value.Contains(f, StringComparison.OrdinalIgnoreCase))
+                       // c.Code.Value.Contains(filteredBy, StringComparison.OrdinalIgnoreCase)
                 ).ToList();
 
+        }
+
+        /// <summary>
+        /// Currently this method only makes variants for the following variants of Yeh Letter:
+        ///     Arabic Letter Yeh,
+        ///     Arabic Letter Farsi Yeh,
+        ///     Arabic Letter Farsi Yeh Isolated Form,
+        ///     Arabic Letter Yeh Isolated Form
+        /// </summary>
+        /// <param name="str"></param>
+        private string[] GetArabicPersianVariants (string str)
+        {
+            var yehChars = "\u064A\u06CC\uFBFC\uFEF1".ToCharArray();
+            var variants = 
+                yehChars
+                .Select(yc => Regex.Replace(str, string.Join("|", yehChars), yc.ToString()))
+                .ToArray();
+            return variants;
         }
 
         private void listViewCodes_SelectedIndexChanged(object sender, EventArgs e)
@@ -407,7 +428,7 @@ namespace WordCommentsAnalyzer
         
         private void UpdateRefListView(List<Models.DataExtract> dataExtracts)
         {
-            listViewRef.LargeImageList = null; ;
+            //listViewRef.LargeImageList = null; ;
             listViewRef.Items.Clear();
             imageListRef.Images.Clear();
             var imgInd = 0;
