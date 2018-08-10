@@ -77,6 +77,7 @@
             this.panel1 = new System.Windows.Forms.Panel();
             this.timerAutoSaveHierarchy = new System.Windows.Forms.Timer(this.components);
             this.bwAnalyze = new System.ComponentModel.BackgroundWorker();
+            this.imageListRef = new System.Windows.Forms.ImageList(this.components);
             this.panelParent.SuspendLayout();
             this.panelNode.SuspendLayout();
             this.panelNodeTop.SuspendLayout();
@@ -351,6 +352,7 @@
             this.listViewRef.TileSize = new System.Drawing.Size(300, 60);
             this.listViewRef.UseCompatibleStateImageBehavior = false;
             this.listViewRef.View = System.Windows.Forms.View.Tile;
+            this.listViewRef.SelectedIndexChanged += new System.EventHandler(this.listViewRef_SelectedIndexChanged);
             // 
             // columnText
             // 
@@ -561,6 +563,12 @@
             this.bwAnalyze.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bwAnalyze_ProgressChanged);
             this.bwAnalyze.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bwAnalyze_RunWorkerCompleted);
             // 
+            // imageListRef
+            // 
+            this.imageListRef.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
+            this.imageListRef.ImageSize = new System.Drawing.Size(160, 100);
+            this.imageListRef.TransparentColor = System.Drawing.Color.Transparent;
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -644,6 +652,7 @@
         private System.Windows.Forms.Button buttonEditHierarchyNode;
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.ComponentModel.BackgroundWorker bwAnalyze;
+        private System.Windows.Forms.ImageList imageListRef;
     }
 }
 

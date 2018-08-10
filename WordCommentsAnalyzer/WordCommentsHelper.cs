@@ -134,7 +134,7 @@ namespace WordCommentsAnalyzer
                     break;
                 }
             }
-
+           
             if (commentEndFound)
             {
                 return commentedNodes;

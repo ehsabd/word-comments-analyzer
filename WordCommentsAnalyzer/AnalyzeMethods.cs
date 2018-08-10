@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DocumentFormat.OpenXml.Packaging;
+﻿using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
-using System.Windows.Forms;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Windows.Forms;
 namespace WordCommentsAnalyzer
 {
     public partial class Main : Form
@@ -45,7 +43,8 @@ namespace WordCommentsAnalyzer
 
                         try
                         {
-                            ExtractDataFromWordFile(fi);
+                            var fileInfoKey = Models.AddFileInfo(fi);
+                            ExtractDataFromWordFile(fileInfoKey);
                         }
                         catch (Exception ex)
                         {
@@ -64,51 +63,54 @@ namespace WordCommentsAnalyzer
 
 
 
-        public void ExtractDataFromWordFile(FileInfo fi)
+        public void ExtractDataFromWordFile(string fileInfoKey)
         {
-            //This counter runs for every data extracts, so the app supports 2,147,483,647 - 1 data extracts
-            int dataExtractCounter = 1;
+            //This counter runs for every data extract in this file,
+            //so the app supports around 2 billion data extracts per each file
+            int thisFileDataCounter = 1;
+            var fi = Models.FileInfosDictionary[fileInfoKey];
             using (FileStream fs = File.Open(fi.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(fs, false))
             {
-                using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(fs, false))
+                var main = wordDoc.MainDocumentPart;
+                var allComments = WordCommentsHelper.GetWordDocumentComments(main);
+                foreach (Comment comment in allComments)
                 {
-                    var main = wordDoc.MainDocumentPart;
-                    var allComments = WordCommentsHelper.GetWordDocumentComments(main);
-                           
-                        foreach (Comment comment in allComments)
-                        {
-                            var commentId = comment.Id.ToString();
-                            var commentRangeEls = WordCommentsHelper.GetCommentRangeElements(main, commentId);
-                            var refText = WordCommentsHelper.GetElementsInnerText(commentRangeEls);
+                    var commentRangeEls = WordCommentsHelper.GetCommentRangeElements(main, comment.Id.Value);
+                    var refText = WordCommentsHelper.GetElementsInnerText(commentRangeEls);
+                    var innerImageDatas = commentRangeEls.SelectMany(
+                        e => e.Descendants<DocumentFormat.OpenXml.Vml.ImageData>()
+                        );
+                    var imagesRelationshipIds = innerImageDatas.Select(d => d.RelationshipId.Value).ToList();
 
-                            var dataExtractId = fi.Name.UTF8ToBase64Ext() +"_"+ dataExtractCounter;
-                            Models.DataExtracts.Add(new Models.DataExtract
-                            {
-                                FileName = fi.Name,
-                                Id = dataExtractId,
-                                ReferenceText = refText
-                            });
+                    thisFileDataCounter++;
+                    //NOTE that the first part of the following dataExtractId is needed to ensure unique ids
+                    var dataExtractId = fileInfoKey + "_" + thisFileDataCounter;
+                    Models.DataExtracts.Add(new Models.DataExtract
+                    {
+                        FileInfoKey = fileInfoKey,
+                        Id = dataExtractId,
+                        ReferenceText = refText,
+                        ImagePartIds = imagesRelationshipIds
+                    });
 
-                            var codes = WordCommentsHelper.ExtractCodesFromComment(comment);
-                            foreach (var p in codes)
-                            {
-                                
-                                if (!Models.CodesDictionary.ContainsKey(p))
-                                {
-                                    var code = new Models.Code { Value = p , DataExtractsIds = new List<string>()};
-                                    Models.CodesDictionary[p] = code;
-                                }
-                                Models.CodesDictionary[p].DataExtractsIds.Add(dataExtractId);
-                            }
-
-                            dataExtractCounter++;
-
-                        }
-                    
+                    var codes = WordCommentsHelper.ExtractCodesFromComment(comment);
+                    AddUpdateCodes(codes, dataExtractId);
                 }
             }
         }
 
-        
-    }
+        public void AddUpdateCodes(List<string> codes, string dataExtractId)
+        {
+            foreach (var p in codes)
+            {
+                if (!Models.CodesDictionary.ContainsKey(p))
+                {
+                    var code = new Models.Code { Value = p, DataExtractsIds = new List<string>() };
+                    Models.CodesDictionary[p] = code;
+                }
+                Models.CodesDictionary[p].DataExtractsIds.Add(dataExtractId);
+            }
+        }
+        }
 }

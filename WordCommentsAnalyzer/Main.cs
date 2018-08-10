@@ -163,6 +163,8 @@ namespace WordCommentsAnalyzer
         {
             textLog.Text = "";
             textFilter.Text = "";
+            textCode.Text = "";
+            listViewRef.Clear();
             if (!bwAnalyze.IsBusy)
             {
                 bwAnalyze.RunWorkerAsync();
@@ -230,13 +232,14 @@ namespace WordCommentsAnalyzer
         private void checkRTL_CheckedChanged(object sender, EventArgs e)
         {
             var rtl = checkRTL.Checked ? RightToLeft.Yes : RightToLeft.No;
+            listViewCodes.RightToLeftLayout = checkRTL.Checked;
             listViewCodes.RightToLeft =rtl ;
             treeViewHierarchy.RightToLeftLayout = checkRTL.Checked;
             treeViewHierarchy.RightToLeft = rtl;
             treeViewHierarchy.ExpandAll();
+            treeViewHierarchy.RightToLeftLayout = checkRTL.Checked;
             listViewRef.RightToLeft = rtl;
             textCode.RightToLeft = rtl;
-            
         }
 
       
@@ -404,33 +407,36 @@ namespace WordCommentsAnalyzer
         
         private void UpdateRefListView(List<Models.DataExtract> dataExtracts)
         {
+            listViewRef.LargeImageList = null; ;
             listViewRef.Items.Clear();
-            var maxLength = 0;
-            var textWithMaxLength = "";
+            imageListRef.Images.Clear();
+            var imgInd = 0;
+            var hasImage = false;
             foreach (var dxt in dataExtracts)
             {
-                var item = listViewRef.Items.Add(dxt.ReferenceText);
-                if (dxt.ReferenceText.Length > maxLength)
+                if ((dxt.ImagePartIds?.Count() ?? 0)==0)
                 {
-                    maxLength = dxt.ReferenceText.Length;
-                    textWithMaxLength = dxt.ReferenceText;
+                    var item = listViewRef.Items.Add(dxt.ReferenceText);
+                    item.SubItems.Add(dxt.FileInfo.Name);
+                    item.Name = dxt.Id;
                 }
-                item.SubItems.Add(dxt.FileName);
-                item.Name = dxt.Id;
+                else
+                {
+                    hasImage = true;
+                    foreach (var image in dxt.GetImages())
+                    {
+                        imageListRef.Images.Add(image);
+                        var item = listViewRef.Items.Add(dxt.ReferenceText);
+                        item.SubItems.Add(dxt.FileInfo.Name);
+                        item.Name = dxt.Id;
+                        item.ImageIndex = imgInd;
+                        imgInd++;
+                    }
+                    listViewRef.LargeImageList = imageListRef;
+                }
             }
+            listViewRef.TileSize = hasImage ? new Size(listViewRef.Width-30, 120) : new Size(listViewRef.Width-30, 60); 
             labelRef.Text = Regex.Replace(labelRef.Text, @"\(.*\)", string.Format("({0})",dataExtracts.Count()));
-            /*TODO this solution does not work, as listview always clips the text, even if the tile is large enough.
-            I suggest using flow layout with auto creating text controls inside.
-            if (maxLength == 0) return;
-            var font = listViewRef.Font;
-            Image fakeImage = new Bitmap(1, 1); //As we cannot use CreateGraphics() in a class library, so the fake image is used to load the Graphics.
-            Graphics graphics = Graphics.FromImage(fakeImage);
-            SizeF size = graphics.MeasureString(textWithMaxLength, font);
-            var area = Convert.ToInt32(size.Height * size.Width);
-            var tileW = 300;
-            var tileH = area / tileW;
-            listViewRef.TileSize = new Size(tileW, tileH);*/
-            
         }
 
         private void timerAutoSaveHierarchy_Tick(object sender, EventArgs e)
@@ -475,6 +481,11 @@ namespace WordCommentsAnalyzer
             filteredBy = textFilter.Text;
             bgwFilterCodes.RunWorkerAsync();
             ReadCodeHierarchyFile();
+        }
+
+        private void listViewRef_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

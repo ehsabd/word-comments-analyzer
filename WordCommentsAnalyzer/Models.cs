@@ -13,14 +13,34 @@ namespace WordCommentsAnalyzer
         {
             CodesInHierarchy.Clear(); 
             CodesDictionary.Clear(); 
-            DataExtracts.Clear(); 
+            DataExtracts.Clear();
+            FileInfosDictionary.Clear();
         }
 
         public class DataExtract
         {
             public string Id { get; set; }
-            public string FileName { get; set; }
+            /// <summary>
+            /// The key that relates this dataextract to a FileInfo object in FileInfosDictionary
+            /// </summary>
+            public string FileInfoKey{ get; set; }
             public string ReferenceText { get; set; }
+            public List<string> ImagePartIds { get; set; }
+            public System.IO.FileInfo FileInfo { get
+                {
+                    return FileInfosDictionary[FileInfoKey];
+                }
+            }
+            public List<System.Drawing.Image> GetImages()
+            {
+                using (var fs = System.IO.File.Open(FileInfo.FullName, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite))
+                using (var wordDoc = DocumentFormat.OpenXml.Packaging.WordprocessingDocument.Open(fs, false))
+                {
+                    var main = wordDoc.MainDocumentPart;
+                    var images = ImagePartIds.Select(id=>System.Drawing.Image.FromStream(main.GetPartById(id).GetStream())).ToList();
+                    return images;
+                }
+            }
         }
 
         public class Code
@@ -69,7 +89,20 @@ namespace WordCommentsAnalyzer
         public static List<DataExtract> DataExtracts = new List<DataExtract>();
         public static Dictionary<string, Code> CodesDictionary
             = new Dictionary<string, Code>();
-        
+        /// <summary>
+        /// This dictionary is used to store each FileInfo for use in DataExtract to get FileName and also
+        /// images, the key is base64 converted fullname
+        /// </summary>
+        public static Dictionary<string, System.IO.FileInfo> FileInfosDictionary 
+            = new Dictionary<string, System.IO.FileInfo>();
+
+        public static string AddFileInfo(System.IO.FileInfo fi)
+        {
+            var key = fi.FullName.UTF8ToBase64Ext();
+            FileInfosDictionary.Add(key, fi);
+            return key;
+        }
+
         /// <summary>
         /// to know which codes (from document codes) are present in the code hierarchy 
         /// this needs to be an observable collection because we only want to change color of 
@@ -83,9 +116,6 @@ namespace WordCommentsAnalyzer
         /// and updated after selection.
         /// </summary>
         public static List<string> SelectedCodes = new List<string>();
-       
-
-
         public static List<CodeStat> CodeStatList = new List<CodeStat>();
         public static List<CodeStat> FilteredCodeStatList = new List<CodeStat>();
 

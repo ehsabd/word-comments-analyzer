@@ -66,14 +66,17 @@ namespace WordCommentsAnalyzer
         public void ReadCodeHierarchyFile()
         {
             treeViewHierarchy.Nodes.Clear();
+            var path = GetCodeHierarchyFilePath;
+            CodeHierarchyNodesText = "";
             /*There is always only ONE root node because
             It makes drag-n-drop for parent nodes both easier and safer
             It makes add/remove nodes both easier and safer.
             */
             treeViewHierarchy.Nodes.Add("root","Code Hierarchy");
+            if (!File.Exists(path)) return;
             try
             {
-                CodeHierarchyNodesText = System.IO.File.ReadAllText(GetCodeHierarchyFilePath);
+                CodeHierarchyNodesText = System.IO.File.ReadAllText(path);
                 
             }
             catch (Exception ex)
