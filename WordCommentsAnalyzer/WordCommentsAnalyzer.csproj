@@ -134,7 +134,43 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Icons\" />
+    <None Include="Resources\libre-gui-view-column.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\libre-gui-view-column-16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\libre-gui-view-column-24.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\libre-gui-view-one-column-modified-24.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icon1.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Image1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icons\libre-gui-comment-modified-for-wordcommentsanalyzer.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icons\libre_gui_add_32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icons\libre_gui_edit_32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icons\libre_gui_save_32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icons\libre_gui_trash_32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icons\libre_gui_copy_32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Icons\libre_gui_sort_alpha_asc32.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

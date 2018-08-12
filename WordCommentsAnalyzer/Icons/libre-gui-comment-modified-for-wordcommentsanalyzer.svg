@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   role="img"
+   focusable="false"
+   aria-hidden="true"
+   viewBox="0 0 512 512"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="libre-gui-comment-modified-for-wordcommentsanalyzer.svg"
+   inkscape:export-filename="D:\My Documents\Projects\Office Projects\WordCommentsAnalyzer\WordCommentsAnalyzer\Icons\libre-gui-comment-modified-for-wordcommentsanalyzer.png"
+   inkscape:export-xdpi="3291.4285"
+   inkscape:export-ydpi="3291.4285"
+   width="512"
+   height="512">
+  <metadata
+     id="metadata10">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs8" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1366"
+     inkscape:window-height="705"
+     id="namedview6"
+     showgrid="false"
+     inkscape:zoom="0.7449875"
+     inkscape:cx="-147.84022"
+     inkscape:cy="324.732"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2" />
+  <path
+     d="m 398.62838,409.61463 -285.25676,0 -65.828482,65.82848 0,-373.02807 c 0,-36.205661 29.622817,-65.828478 65.828482,-65.828478 l 285.25676,0 c 36.20566,0 65.82848,29.622817 65.82848,65.828478 l 0,241.3711 c 0,36.20567 -29.62282,65.82849 -65.82848,65.82849 z"
+     id="path4"
+     style="fill:#8bc34a;stroke:#ffffff;stroke-width:7.31427574;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     inkscape:connector-curvature="0" />
+  <path
+     d="m 195.2858,36.586562 0,120.857068 269.1425,0 0,-55.00006 c 0,-36.205665 -29.57996,-65.857008 -65.78562,-65.857008 z"
+     id="path4142"
+     style="fill:#ff2a2a;stroke:#ffffff;stroke-width:7.31427574;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     inkscape:connector-curvature="0"
+     sodipodi:nodetypes="cccssc" />
+  <path
+     d="m 188.71437,290.72912 0,118.85698 209.92831,0 c 36.20566,0 65.78562,-29.58003 65.78562,-65.78569 l 0,-53.07129 z"
+     id="path4147"
+     style="fill:#ff5599;stroke:#ffffff;stroke-width:7.31427574;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     inkscape:connector-curvature="0"
+     sodipodi:nodetypes="ccsscc" />
+  <path
+     d="m 113.35734,36.586562 c -36.20567,0 -65.785633,29.651343 -65.785633,65.857008 l 0,188.2775 283.142483,0 0,-254.134508 z"
+     id="path4152"
+     style="fill:#7f2aff;stroke:#ffffff;stroke-width:7.31427574;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     inkscape:connector-curvature="0"
+     sodipodi:nodetypes="sscccs" />
+  <path
+     d="m 47.571707,170.80059 0,304.64252 65.785633,-65.85701 81.92846,0 0,-238.78551 z"
+     id="path4157"
+     style="fill:#ffff00;fill-opacity:1;stroke:#ffffff;stroke-width:7.31427574;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     inkscape:connector-curvature="0"
+     sodipodi:nodetypes="cccccc" />
+</svg>

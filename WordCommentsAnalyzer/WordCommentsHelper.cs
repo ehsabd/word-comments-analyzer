@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using DocumentFormat.OpenXml;
-
+using System.Text.RegularExpressions;
 namespace WordCommentsAnalyzer
 {
     class WordCommentsHelper
@@ -28,12 +28,24 @@ namespace WordCommentsAnalyzer
 
         public static List<string> ExtractCodesFromComment(Comment comment)
         {
-            char[] trimChars = { ';', '"', '\'', ',', '.', '،', '؛','\t','\n','\r'};
+            string replaceSpacePattern = "[" + "\u200C" //Zero Width Non-Joiner
+                + "]";
+
+            string removePattern = "[" + "\u200D" //Zero Width Joiner
+                + "]";
+
+            char[] trimChars = { ':',';', '"', '\'', ',', '.', '،', '؛','\t','\n','\r'};
             return comment.Descendants<Paragraph>()
-                .Select(el => el.InnerText.Trim(trimChars))
+                .Select(
+                el => Regex.Replace(
+                    Regex.Replace(el.InnerText,removePattern,""),
+                    replaceSpacePattern," ")
+                    .Trim(trimChars)
+                    )
                 .Where(s => !string.IsNullOrWhiteSpace(s))
                 .ToList();
         }
+
         /*The methods GetElementsInnerText, GetCommentRangeElements, and IsMatchingCommentEnd are adapted from
         the answer to "Getting OpenXmlElements between CommentRangeStart and CommentRangeEnd - Stack Overflow" at
         https://stackoverflow.com/questions/12175491/getting-openxmlelements-between-commentrangestart-and-commentrangeend,

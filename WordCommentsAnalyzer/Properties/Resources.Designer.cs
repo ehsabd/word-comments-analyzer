@@ -63,9 +63,89 @@ namespace WordCommentsAnalyzer.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap _32px_Gnome_list_add_svg {
+        internal static System.Drawing.Bitmap libre_gui_add_32 {
             get {
-                object obj = ResourceManager.GetObject("32px-Gnome-list-add.svg", resourceCulture);
+                object obj = ResourceManager.GetObject("libre_gui_add_32", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap libre_gui_comment_modified_for_wordcommentsanalyzer {
+            get {
+                object obj = ResourceManager.GetObject("libre_gui_comment_modified_for_wordcommentsanalyzer", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap libre_gui_copy_32 {
+            get {
+                object obj = ResourceManager.GetObject("libre_gui_copy_32", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap libre_gui_edit_32 {
+            get {
+                object obj = ResourceManager.GetObject("libre_gui_edit_32", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap libre_gui_save_32 {
+            get {
+                object obj = ResourceManager.GetObject("libre_gui_save_32", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap libre_gui_sort_alpha_asc32 {
+            get {
+                object obj = ResourceManager.GetObject("libre_gui_sort_alpha_asc32", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap libre_gui_trash_32 {
+            get {
+                object obj = ResourceManager.GetObject("libre_gui_trash_32", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap libre_gui_view_column_24 {
+            get {
+                object obj = ResourceManager.GetObject("libre-gui-view-column-24", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap libre_gui_view_one_column_modified_24 {
+            get {
+                object obj = ResourceManager.GetObject("libre-gui-view-one-column-modified-24", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

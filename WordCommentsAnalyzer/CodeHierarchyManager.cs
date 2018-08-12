@@ -61,10 +61,16 @@ namespace WordCommentsAnalyzer
             }
         }
 
+        public void AddCodeHierarchyRootNode()
+        {
+
+        }
         /*An adaptation from http://csharphelper.com/blog/2014/09/load-a-treeview-from-a-tab-delimited-file-in-c/
-            */
+           */
         public void ReadCodeHierarchyFile()
         {
+            
+            
             treeViewHierarchy.Nodes.Clear();
             var path = GetCodeHierarchyFilePath;
             CodeHierarchyNodesText = "";
@@ -84,6 +90,7 @@ namespace WordCommentsAnalyzer
                 textLog.Text += string.Join(" ", "Error reading code hierarchy file: ", GetCodeHierarchyFilePath, ex.Message);
             }
             if (CodeHierarchyNodesText == "") return;
+            treeViewHierarchy.BeginUpdate();
             // Break the file into lines.
             string[] lines = CodeHierarchyNodesText.Split(
                 new char[] { '\r', '\n' },
@@ -110,6 +117,10 @@ namespace WordCommentsAnalyzer
             catch (Exception ex)
             {
                 textLog.Text += string.Join(" ", "Error converting code hierarchy file content to tree: ", ex.Message);
+            }
+            finally
+            {
+                treeViewHierarchy.EndUpdate();
             }
 
         }

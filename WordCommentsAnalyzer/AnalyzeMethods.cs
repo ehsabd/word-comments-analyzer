@@ -28,6 +28,10 @@ namespace WordCommentsAnalyzer
                 // You may decide to do something different here. For example, you
                 // can try to elevate your privileges and access the file again.
                 bw?.ReportProgress(0, "Error getting directory info, " + ex.Message);
+            }catch (DirectoryNotFoundException ex)
+            {
+                bw?.ReportProgress(0, "The directory is not found. Please change the directory to a existing one, " + ex.Message);
+
             }
 
             if (files != null)
@@ -54,7 +58,7 @@ namespace WordCommentsAnalyzer
                     bw?.ReportProgress((i + 1) * 100 / files.Length, errorLog);
 
                 }
-
+                Models.MakeCodesArabicPersianCharactersUniform();
                 Models.ComputeCodeStats();
                 Models.SortCodeStatListByFrequency(textCulture.Text);
 
@@ -86,21 +90,21 @@ namespace WordCommentsAnalyzer
                     thisFileDataCounter++;
                     //NOTE that the first part of the following dataExtractId is needed to ensure unique ids
                     var dataExtractId = fileInfoKey + "_" + thisFileDataCounter;
+                    var codes = WordCommentsHelper.ExtractCodesFromComment(comment);
                     Models.DataExtracts.Add(new Models.DataExtract
                     {
                         FileInfoKey = fileInfoKey,
                         Id = dataExtractId,
                         ReferenceText = refText,
-                        ImagePartIds = imagesRelationshipIds
+                        ImagePartIds = imagesRelationshipIds,
+                        Codes = codes
                     });
-
-                    var codes = WordCommentsHelper.ExtractCodesFromComment(comment);
-                    AddUpdateCodes(codes, dataExtractId);
+                    AddUpdateCodesDictionary(codes, dataExtractId);
                 }
             }
         }
 
-        public void AddUpdateCodes(List<string> codes, string dataExtractId)
+        public void AddUpdateCodesDictionary(List<string> codes, string dataExtractId)
         {
             foreach (var p in codes)
             {

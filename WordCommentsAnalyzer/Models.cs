@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
-
+using System.Text.RegularExpressions;
 namespace WordCommentsAnalyzer
 {
     class Models
@@ -25,6 +25,11 @@ namespace WordCommentsAnalyzer
             /// </summary>
             public string FileInfoKey{ get; set; }
             public string ReferenceText { get; set; }
+            /// <summary>
+            /// Note that the codes are stored both in the CodesDictionary and here because we need
+            /// fast access to reference text codes
+            /// </summary>
+            public List<string> Codes { get; set; }
             public List<string> ImagePartIds { get; set; }
             public System.IO.FileInfo FileInfo { get
                 {
@@ -41,6 +46,7 @@ namespace WordCommentsAnalyzer
                     return images;
                 }
             }
+
         }
 
         public class Code
@@ -111,11 +117,6 @@ namespace WordCommentsAnalyzer
         /// </summary>
         public static ObservableCollection<string> CodesInHierarchy = new ObservableCollection<string>();
 
-        /// <summary>
-        /// To know which codes are seleted. This does not need to be observable because selected codes are usually reset on every selection
-        /// and updated after selection.
-        /// </summary>
-        public static List<string> SelectedCodes = new List<string>();
         public static List<CodeStat> CodeStatList = new List<CodeStat>();
         public static List<CodeStat> FilteredCodeStatList = new List<CodeStat>();
 
@@ -158,6 +159,61 @@ namespace WordCommentsAnalyzer
         public static bool CodeExists (string code)
         {
             return Models.CodesDictionary.ContainsKey(code); 
+        }
+
+        public static void MakeCodesArabicPersianCharactersUniform()
+        {
+            var CodesHavingYehOrKafCount = CodesDictionary.Where(p => Regex.IsMatch(p.Key, "[\u064A\u0643]")).Count();
+            var CodesHavingFarsiYehOrKehehCount = CodesDictionary.Where(p => Regex.IsMatch(p.Key, "[\u06CC\u06A9]")).Count();
+            if (CodesHavingFarsiYehOrKehehCount == 0 & CodesHavingYehOrKafCount == 0) return;
+            bool FarsiDominance = CodesHavingFarsiYehOrKehehCount > CodesHavingYehOrKafCount;
+            /*NOTE that because we need to use Regex many times we use compiled Regex
+            see https://stackoverflow.com/questions/513412/how-does-regexoptions-compiled-work
+            */
+            var regexYeh_FarsiYeh = new Regex("[\u06CC\u064A]", RegexOptions.Compiled);
+            var regexKaf_Keheh = new Regex("[\u06A9\u0643]", RegexOptions.Compiled);
+            var replaceYeh_Farsi = FarsiDominance ?  "\u06CC":"\u064A";
+            var replaceKaf_Keheh = FarsiDominance ?  "\u06A9":"\u0643";
+            var sw = new System.Diagnostics.Stopwatch();
+            sw.Start();
+            var t0 = sw.ElapsedMilliseconds;
+            /*NOTE that we need to statically store current codes because
+            we can enumerate the dicionary and add/remove items at the same time
+            Also note that we need ToArray or ToList for this
+            */
+            var currentCodes = CodesDictionary.Select(p => p.Key).ToArray();
+            foreach (var code in currentCodes)
+            {
+                var codeObject = CodesDictionary[code];
+                var replacedCode = regexKaf_Keheh.Replace(code, replaceKaf_Keheh);
+                replacedCode = regexYeh_FarsiYeh.Replace(code, replaceYeh_Farsi);
+                if (code != replacedCode)
+                {
+                    if (CodesDictionary.ContainsKey(replacedCode))
+                    {
+                        CodesDictionary[replacedCode].DataExtractsIds =
+                            CodesDictionary[replacedCode].DataExtractsIds.Union(codeObject.DataExtractsIds).ToList();
+                    }
+                    else 
+                    {
+                        codeObject.Value = replacedCode;
+                        CodesDictionary.Add(replacedCode, codeObject);
+                    }
+                    CodesDictionary.Remove(code);
+                }
+            }
+            var t1 = sw.ElapsedMilliseconds;
+            System.Diagnostics.Debug.WriteLine("Time of replacing the codes in CodesDictionary (ms):" + (t1 - t0).ToString());
+            foreach (var dxt in DataExtracts)
+            {
+                dxt.Codes = (from code in dxt.Codes
+                            let a = regexKaf_Keheh.Replace(code, replaceKaf_Keheh)
+                            let b = regexYeh_FarsiYeh.Replace(a, replaceYeh_Farsi)
+                            select b).ToList();
+            }
+            var t2 = sw.ElapsedMilliseconds;
+            System.Diagnostics.Debug.WriteLine("Time of replacing the codes in DataExtracts (ms):" + (t2 - t1).ToString());
+
         }
     }
 }

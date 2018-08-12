@@ -43,6 +43,7 @@ namespace WordCommentsAnalyzer
         private string filteredBy = "";
         private string CodeHierarchyNodesText = "";
         private static string WorkingDirectory;
+        private static int fullWidth = 0;
 
         private int checkCodeIndex = 0;
 
@@ -74,7 +75,7 @@ namespace WordCommentsAnalyzer
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            Main_Resize(new object(), new EventArgs());
             Models.CodesInHierarchy.CollectionChanged +=
                 new System.Collections.Specialized.NotifyCollectionChangedEventHandler(
                     CodesInHierarchy_CollectionChanged);
@@ -173,19 +174,7 @@ namespace WordCommentsAnalyzer
 
       
 
-        private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            if (filteredBy != textFilter.Text)
-            {
-                filteredBy = textFilter.Text;
-                bgwFilterCodes.RunWorkerAsync();
-            }
-            else {
-                UpdateCodesListView();
-                
-            }
-        }
-
+       
 
         private void UpdateCodesListView()
         {
@@ -197,16 +186,12 @@ namespace WordCommentsAnalyzer
                   var code = cs.Code.Value;
                   var item = new ListViewItem(new string[] { code, cs.Frequency.ToString() });
                   item.Name = code;
-                  item.BackColor = (
-                      Models.SelectedCodes.Contains(code)) ?
-                      System.Drawing.Color.Yellow 
-                      : 
-                      (
+                  item.BackColor = 
                       (Models.CodesInHierarchy.Contains(code))? 
                       System.Drawing.Color.LightGoldenrodYellow
                       :
                       System.Drawing.Color.White
-                      );
+                      ;
                   listViewCodes.Items.Add(item);
               }
 
@@ -216,10 +201,10 @@ namespace WordCommentsAnalyzer
         }
         private void textFilter_TextChanged(object sender, EventArgs e)
         {
-            if (!bgwFilterCodes.IsBusy)
+            if (!bwFilterCodes.IsBusy)
             {
                 filteredBy = textFilter.Text;
-                bgwFilterCodes.RunWorkerAsync(); 
+                bwFilterCodes.RunWorkerAsync(); 
             }
         }
 
@@ -290,14 +275,14 @@ namespace WordCommentsAnalyzer
             var selectedNode = treeViewHierarchy.SelectedNode;
             TreeNode addedNode;
             var code = NewHierarchyNodeName;
-            if (selectedNode != null)
-            {
-                addedNode = selectedNode.Nodes.Add(code, code);
-                selectedNode.Expand();
+            var parent = selectedNode ?? treeViewHierarchy.Nodes[0];
+           
+            addedNode = parent.Nodes.Add(code, code);
+            parent.Expand();
                 
-                EditHierarchyNode(addedNode);
-            }
-            
+            EditHierarchyNode(addedNode);
+            addedNode.EnsureVisible();
+   
         }
 
         private void EditHierarchyNode(TreeNode node)
@@ -325,11 +310,12 @@ namespace WordCommentsAnalyzer
                                   select pair.Value);
 
             var dataExtractIds = codeObjects.SelectMany(c => c.DataExtractsIds).Distinct();
+            labelRef.Text = Regex.Replace(labelRef.Text, @"\(.*\)", string.Format("({0})", dataExtractIds.Count()));
 
             var query = from id in dataExtractIds
                         join d in Models.DataExtracts on id equals d.Id
                         select d;
-
+            
             UpdateRefListView(query.ToList());
 
         }
@@ -385,15 +371,7 @@ namespace WordCommentsAnalyzer
         }
 
 
-        private void bgwFilterCodes_DoWork(object sender, DoWorkEventArgs e)
-        {
-            var filterVariants = GetArabicPersianVariants(filteredBy);
-            Models.FilteredCodeStatList = Models.CodeStatList
-                .Where(c => filterVariants.Any(f => c.Code.Value.Contains(f, StringComparison.OrdinalIgnoreCase))
-                       // c.Code.Value.Contains(filteredBy, StringComparison.OrdinalIgnoreCase)
-                ).ToList();
-
-        }
+        
 
         /// <summary>
         /// Currently this method only makes variants for the following variants of Yeh Letter:
@@ -428,36 +406,55 @@ namespace WordCommentsAnalyzer
         
         private void UpdateRefListView(List<Models.DataExtract> dataExtracts)
         {
-            //listViewRef.LargeImageList = null; ;
+            listViewRef.BeginUpdate();
             listViewRef.Items.Clear();
             imageListRef.Images.Clear();
             var imgInd = 0;
-            var hasImage = false;
+            //NOTE that we should set image size before adding the images
+            var hasImage = dataExtracts.Any(dxt=>(dxt.ImagePartIds?.Count() ?? 0) > 0);
+            imageListRef.ImageSize = hasImage ? new Size(160, 100) : new Size(1, 1);
+            listViewRef.LargeImageList = hasImage ? imageListRef : null;
             foreach (var dxt in dataExtracts)
             {
                 if ((dxt.ImagePartIds?.Count() ?? 0)==0)
                 {
-                    var item = listViewRef.Items.Add(dxt.ReferenceText);
-                    item.SubItems.Add(dxt.FileInfo.Name);
-                    item.Name = dxt.Id;
+                    CreateItemFromDataExtract(dxt);
                 }
                 else
                 {
-                    hasImage = true;
-                    foreach (var image in dxt.GetImages())
+                foreach (var image in dxt.GetImages())
                     {
-                        imageListRef.Images.Add(image);
-                        var item = listViewRef.Items.Add(dxt.ReferenceText);
-                        item.SubItems.Add(dxt.FileInfo.Name);
-                        item.Name = dxt.Id;
-                        item.ImageIndex = imgInd;
-                        imgInd++;
+                     imageListRef.Images.Add(image);
+                     CreateItemFromDataExtract(dxt, imgInd);      
+                     imgInd++;
                     }
-                    listViewRef.LargeImageList = imageListRef;
                 }
             }
-            listViewRef.TileSize = hasImage ? new Size(listViewRef.Width-30, 120) : new Size(listViewRef.Width-30, 60); 
-            labelRef.Text = Regex.Replace(labelRef.Text, @"\(.*\)", string.Format("({0})",dataExtracts.Count()));
+            
+            listViewRef.TileSize = hasImage ? new Size(listViewRef.Width-30, 120) : new Size(listViewRef.Width-30, 60);
+            listViewRef.EndUpdate();
+           
+        }
+
+        private ListViewItem CreateItemFromDataExtract(Models.DataExtract dxt,int imageIndex=-1 )
+        {
+            var refText = dxt.ReferenceText;
+            var codes = string.Join(", ", dxt.Codes);
+            var fileName = dxt.FileInfo.Name;
+            ListViewItem item = null;
+            if (string.IsNullOrEmpty(refText))
+            {
+                item = listViewRef.Items.Add(codes, imageIndex);
+                item.SubItems.Add(fileName);
+            }
+            else
+            {
+                item = listViewRef.Items.Add(dxt.ReferenceText);
+                item.SubItems.Add(codes);
+                item.SubItems.Add(fileName);
+            }
+            item.Name = dxt.Id;
+            return item;
         }
 
         private void timerAutoSaveHierarchy_Tick(object sender, EventArgs e)
@@ -500,13 +497,95 @@ namespace WordCommentsAnalyzer
         {
             panelMiddle.Enabled = true;
             filteredBy = textFilter.Text;
-            bgwFilterCodes.RunWorkerAsync();
+            /*
+            NOTE that the codelist items should be cleared here before ReadCodeHierarchy
+            because every addition in ReadCodeHierarchy causes the event of collection changed 
+            and this event searches codelist to highlight organized codes and this event is not meant to 
+            be raised when mass updating the code hierarchy
+            */
+            listViewCodes.Items.Clear();
             ReadCodeHierarchyFile();
+            bwFilterCodes.RunWorkerAsync();
         }
 
         private void listViewRef_SelectedIndexChanged(object sender, EventArgs e)
         {
 
+        }
+
+        
+        private void View_Changed(object sender, EventArgs e)
+        {
+            var listViewCodesW = listViewCodes.Width;
+            var controls = new List<System.Windows.Forms.Control>();
+            controls.Add(panelMiddle);
+            controls.Add(splitterLeftMiddle);
+            controls.Add(splitterMiddleRight);
+            controls.Add(panelSidebar);
+            controls.Add(panelWorkingDirBrowseAnalyze);
+            foreach (var c in controls)
+            {
+                c.Visible = radioThreePanels.Checked;
+            }
+            Width = radioThreePanels.Checked ? fullWidth :
+                listViewCodesW + listViewCodes.Margin.Right + listViewCodes.Margin.Left;
+            
+        }
+
+        private void panel1_Resize(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Main_Resize(object sender, EventArgs e)
+        {
+            if (radioThreePanels.Checked)
+            {
+                fullWidth = Width;
+            }
+        }
+
+        private void bwFilterCodes_DoWork(object sender, DoWorkEventArgs e)
+        {
+            var filterVariants = GetArabicPersianVariants(filteredBy);
+            Models.FilteredCodeStatList = Models.CodeStatList
+                .Where(c => filterVariants.Any(f => c.Code.Value.Contains(f, StringComparison.OrdinalIgnoreCase))
+                // c.Code.Value.Contains(filteredBy, StringComparison.OrdinalIgnoreCase)
+                ).ToList();
+        }
+
+        private void bwFilterCodes_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (filteredBy != textFilter.Text)
+            {
+                filteredBy = textFilter.Text;
+                bwFilterCodes.RunWorkerAsync();
+            }
+            else {
+                UpdateCodesListView();
+
+            }
+        }
+
+        private void treeViewHierarchy_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (IsMouseOnEmptyArea(treeViewHierarchy, e.X, e.Y))
+            {
+                treeViewHierarchy.SelectedNode = null;
+            }
+        }
+
+        private bool IsMouseOnEmptyArea(TreeView tv, int X, int Y)
+        {
+        
+            Point targetPoint = tv.PointToClient(new Point(X, Y));
+            var nodeAt = treeViewHierarchy.GetNodeAt(targetPoint);
+            return !(nodeAt?.Bounds.Contains(targetPoint) ?? false);
+        }
+
+        private void buttonSortTreeAZ_Click(object sender, EventArgs e)
+        {
+            treeViewHierarchy.Sort();
         }
     }
 }

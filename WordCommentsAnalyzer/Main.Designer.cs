@@ -33,7 +33,7 @@
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.textLog = new System.Windows.Forms.TextBox();
             this.labelNumberOfNodes = new System.Windows.Forms.Label();
-            this.bgwFilterCodes = new System.ComponentModel.BackgroundWorker();
+            this.bwFilterCodes = new System.ComponentModel.BackgroundWorker();
             this.panelParent = new System.Windows.Forms.Panel();
             this.panelNode = new System.Windows.Forms.Panel();
             this.listViewCodes = new System.Windows.Forms.ListView();
@@ -46,25 +46,21 @@
             this.panelMiddle = new System.Windows.Forms.Panel();
             this.treeViewHierarchy = new System.Windows.Forms.TreeView();
             this.panelMiddleToolbar = new System.Windows.Forms.Panel();
-            this.buttonSave = new System.Windows.Forms.Button();
-            this.buttonDeleteHierarchyNode = new System.Windows.Forms.Button();
-            this.buttonEditHierarchyNode = new System.Windows.Forms.Button();
             this.labelCodeHierarchy = new System.Windows.Forms.Label();
-            this.buttonAddHierarchyNode = new System.Windows.Forms.Button();
             this.splitterMiddleRight = new System.Windows.Forms.Splitter();
             this.panelSidebar = new System.Windows.Forms.Panel();
             this.panelSidebarBottom = new System.Windows.Forms.Panel();
             this.listViewRef = new System.Windows.Forms.ListView();
-            this.columnText = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnFile = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnTextorCodes = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnCodesorFile = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnFileorNone = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.panelReferenceTextToolbar = new System.Windows.Forms.Panel();
-            this.buttonCopyRef = new System.Windows.Forms.Button();
             this.labelRef = new System.Windows.Forms.Label();
             this.panelSidebarTop = new System.Windows.Forms.Panel();
             this.textCode = new System.Windows.Forms.TextBox();
-            this.panelCommentTextToolbar = new System.Windows.Forms.Panel();
+            this.panelCodeTextToolbar = new System.Windows.Forms.Panel();
             this.labelCode = new System.Windows.Forms.Label();
-            this.buttonCopyComment = new System.Windows.Forms.Button();
+            this.imageListRef = new System.Windows.Forms.ImageList(this.components);
             this.panelSeparator = new System.Windows.Forms.Panel();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.buttonAnalyze = new System.Windows.Forms.Button();
@@ -74,10 +70,20 @@
             this.checkRTL = new System.Windows.Forms.CheckBox();
             this.labelCulture = new System.Windows.Forms.Label();
             this.textCulture = new System.Windows.Forms.TextBox();
-            this.panel1 = new System.Windows.Forms.Panel();
+            this.panelTop = new System.Windows.Forms.Panel();
+            this.panelWorkingDirBrowseAnalyze = new System.Windows.Forms.Panel();
+            this.labelView = new System.Windows.Forms.Label();
             this.timerAutoSaveHierarchy = new System.Windows.Forms.Timer(this.components);
             this.bwAnalyze = new System.ComponentModel.BackgroundWorker();
-            this.imageListRef = new System.Windows.Forms.ImageList(this.components);
+            this.buttonSortTreeAZ = new System.Windows.Forms.Button();
+            this.buttonSave = new System.Windows.Forms.Button();
+            this.buttonDeleteHierarchyNode = new System.Windows.Forms.Button();
+            this.buttonEditHierarchyNode = new System.Windows.Forms.Button();
+            this.buttonAddHierarchyNode = new System.Windows.Forms.Button();
+            this.buttonCopyRef = new System.Windows.Forms.Button();
+            this.buttonCopyComment = new System.Windows.Forms.Button();
+            this.radioMiniCodelist = new System.Windows.Forms.RadioButton();
+            this.radioThreePanels = new System.Windows.Forms.RadioButton();
             this.panelParent.SuspendLayout();
             this.panelNode.SuspendLayout();
             this.panelNodeTop.SuspendLayout();
@@ -87,9 +93,10 @@
             this.panelSidebarBottom.SuspendLayout();
             this.panelReferenceTextToolbar.SuspendLayout();
             this.panelSidebarTop.SuspendLayout();
-            this.panelCommentTextToolbar.SuspendLayout();
+            this.panelCodeTextToolbar.SuspendLayout();
             this.panelSeparator.SuspendLayout();
-            this.panel1.SuspendLayout();
+            this.panelTop.SuspendLayout();
+            this.panelWorkingDirBrowseAnalyze.SuspendLayout();
             this.SuspendLayout();
             // 
             // textLog
@@ -112,11 +119,11 @@
             this.labelNumberOfNodes.TabIndex = 4;
             this.labelNumberOfNodes.Text = "_________";
             // 
-            // bgwFilterCodes
+            // bwFilterCodes
             // 
-            this.bgwFilterCodes.WorkerSupportsCancellation = true;
-            this.bgwFilterCodes.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bgwFilterCodes_DoWork);
-            this.bgwFilterCodes.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
+            this.bwFilterCodes.WorkerSupportsCancellation = true;
+            this.bwFilterCodes.DoWork += new System.ComponentModel.DoWorkEventHandler(this.bwFilterCodes_DoWork);
+            this.bwFilterCodes.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bwFilterCodes_RunWorkerCompleted);
             // 
             // panelParent
             // 
@@ -184,7 +191,7 @@
             this.labelFilter.AutoSize = true;
             this.labelFilter.Location = new System.Drawing.Point(12, 12);
             this.labelFilter.Name = "labelFilter";
-            this.labelFilter.Size = new System.Drawing.Size(56, 13);
+            this.labelFilter.Size = new System.Drawing.Size(60, 13);
             this.labelFilter.TabIndex = 5;
             this.labelFilter.Text = "Filter Text:";
             // 
@@ -237,9 +244,11 @@
             this.treeViewHierarchy.DragEnter += new System.Windows.Forms.DragEventHandler(this.treeViewHierarchy_DragEnter);
             this.treeViewHierarchy.DragOver += new System.Windows.Forms.DragEventHandler(this.treeViewHierarchy_DragOver);
             this.treeViewHierarchy.KeyUp += new System.Windows.Forms.KeyEventHandler(this.treeViewHierarchy_KeyUp);
+            this.treeViewHierarchy.MouseClick += new System.Windows.Forms.MouseEventHandler(this.treeViewHierarchy_MouseClick);
             // 
             // panelMiddleToolbar
             // 
+            this.panelMiddleToolbar.Controls.Add(this.buttonSortTreeAZ);
             this.panelMiddleToolbar.Controls.Add(this.buttonSave);
             this.panelMiddleToolbar.Controls.Add(this.buttonDeleteHierarchyNode);
             this.panelMiddleToolbar.Controls.Add(this.buttonEditHierarchyNode);
@@ -251,62 +260,14 @@
             this.panelMiddleToolbar.Size = new System.Drawing.Size(367, 36);
             this.panelMiddleToolbar.TabIndex = 16;
             // 
-            // buttonSave
-            // 
-            this.buttonSave.Dock = System.Windows.Forms.DockStyle.Right;
-            this.buttonSave.Image = ((System.Drawing.Image)(resources.GetObject("buttonSave.Image")));
-            this.buttonSave.Location = new System.Drawing.Point(223, 0);
-            this.buttonSave.Name = "buttonSave";
-            this.buttonSave.Size = new System.Drawing.Size(36, 36);
-            this.buttonSave.TabIndex = 17;
-            this.buttonSave.Tag = "Save hierarchy";
-            this.buttonSave.UseVisualStyleBackColor = true;
-            this.buttonSave.Click += new System.EventHandler(this.buttonSave_Click);
-            // 
-            // buttonDeleteHierarchyNode
-            // 
-            this.buttonDeleteHierarchyNode.Dock = System.Windows.Forms.DockStyle.Right;
-            this.buttonDeleteHierarchyNode.Image = ((System.Drawing.Image)(resources.GetObject("buttonDeleteHierarchyNode.Image")));
-            this.buttonDeleteHierarchyNode.Location = new System.Drawing.Point(259, 0);
-            this.buttonDeleteHierarchyNode.Name = "buttonDeleteHierarchyNode";
-            this.buttonDeleteHierarchyNode.Size = new System.Drawing.Size(36, 36);
-            this.buttonDeleteHierarchyNode.TabIndex = 15;
-            this.buttonDeleteHierarchyNode.Tag = "Delete node";
-            this.buttonDeleteHierarchyNode.UseVisualStyleBackColor = true;
-            this.buttonDeleteHierarchyNode.Click += new System.EventHandler(this.buttonDeleteHierarchyNode_Click);
-            // 
-            // buttonEditHierarchyNode
-            // 
-            this.buttonEditHierarchyNode.Dock = System.Windows.Forms.DockStyle.Right;
-            this.buttonEditHierarchyNode.Image = ((System.Drawing.Image)(resources.GetObject("buttonEditHierarchyNode.Image")));
-            this.buttonEditHierarchyNode.Location = new System.Drawing.Point(295, 0);
-            this.buttonEditHierarchyNode.Name = "buttonEditHierarchyNode";
-            this.buttonEditHierarchyNode.Size = new System.Drawing.Size(36, 36);
-            this.buttonEditHierarchyNode.TabIndex = 18;
-            this.buttonEditHierarchyNode.Tag = "Edit node";
-            this.buttonEditHierarchyNode.UseVisualStyleBackColor = true;
-            this.buttonEditHierarchyNode.Click += new System.EventHandler(this.buttonEditHierarchyNode_Click);
-            // 
             // labelCodeHierarchy
             // 
             this.labelCodeHierarchy.AutoSize = true;
             this.labelCodeHierarchy.Location = new System.Drawing.Point(9, 12);
             this.labelCodeHierarchy.Name = "labelCodeHierarchy";
-            this.labelCodeHierarchy.Size = new System.Drawing.Size(83, 13);
+            this.labelCodeHierarchy.Size = new System.Drawing.Size(85, 13);
             this.labelCodeHierarchy.TabIndex = 16;
             this.labelCodeHierarchy.Text = "Code Hierarchy:";
-            // 
-            // buttonAddHierarchyNode
-            // 
-            this.buttonAddHierarchyNode.Dock = System.Windows.Forms.DockStyle.Right;
-            this.buttonAddHierarchyNode.Image = ((System.Drawing.Image)(resources.GetObject("buttonAddHierarchyNode.Image")));
-            this.buttonAddHierarchyNode.Location = new System.Drawing.Point(331, 0);
-            this.buttonAddHierarchyNode.Name = "buttonAddHierarchyNode";
-            this.buttonAddHierarchyNode.Size = new System.Drawing.Size(36, 36);
-            this.buttonAddHierarchyNode.TabIndex = 14;
-            this.buttonAddHierarchyNode.Tag = "Add node";
-            this.buttonAddHierarchyNode.UseVisualStyleBackColor = true;
-            this.buttonAddHierarchyNode.Click += new System.EventHandler(this.buttonAddHierarchyNode_Click);
             // 
             // splitterMiddleRight
             // 
@@ -341,8 +302,9 @@
             // listViewRef
             // 
             this.listViewRef.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnText,
-            this.columnFile});
+            this.columnTextorCodes,
+            this.columnCodesorFile,
+            this.columnFileorNone});
             this.listViewRef.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listViewRef.GridLines = true;
             this.listViewRef.Location = new System.Drawing.Point(0, 36);
@@ -354,14 +316,14 @@
             this.listViewRef.View = System.Windows.Forms.View.Tile;
             this.listViewRef.SelectedIndexChanged += new System.EventHandler(this.listViewRef_SelectedIndexChanged);
             // 
-            // columnText
+            // columnTextorCodes
             // 
-            this.columnText.Text = "Text";
-            this.columnText.Width = 200;
+            this.columnTextorCodes.Text = "Text";
+            this.columnTextorCodes.Width = 200;
             // 
-            // columnFile
+            // columnCodesorFile
             // 
-            this.columnFile.Text = "File Name";
+            this.columnCodesorFile.Text = "File Name";
             // 
             // panelReferenceTextToolbar
             // 
@@ -373,31 +335,19 @@
             this.panelReferenceTextToolbar.Size = new System.Drawing.Size(320, 36);
             this.panelReferenceTextToolbar.TabIndex = 16;
             // 
-            // buttonCopyRef
-            // 
-            this.buttonCopyRef.Dock = System.Windows.Forms.DockStyle.Right;
-            this.buttonCopyRef.Image = ((System.Drawing.Image)(resources.GetObject("buttonCopyRef.Image")));
-            this.buttonCopyRef.Location = new System.Drawing.Point(284, 0);
-            this.buttonCopyRef.Name = "buttonCopyRef";
-            this.buttonCopyRef.Size = new System.Drawing.Size(36, 36);
-            this.buttonCopyRef.TabIndex = 15;
-            this.buttonCopyRef.Tag = "Copy to clipboard";
-            this.buttonCopyRef.UseVisualStyleBackColor = true;
-            this.buttonCopyRef.Click += new System.EventHandler(this.buttonCopyRef_Click);
-            // 
             // labelRef
             // 
             this.labelRef.AutoSize = true;
             this.labelRef.Location = new System.Drawing.Point(14, 11);
             this.labelRef.Name = "labelRef";
-            this.labelRef.Size = new System.Drawing.Size(94, 13);
+            this.labelRef.Size = new System.Drawing.Size(100, 13);
             this.labelRef.TabIndex = 11;
             this.labelRef.Text = "Reference texts ():";
             // 
             // panelSidebarTop
             // 
             this.panelSidebarTop.Controls.Add(this.textCode);
-            this.panelSidebarTop.Controls.Add(this.panelCommentTextToolbar);
+            this.panelSidebarTop.Controls.Add(this.panelCodeTextToolbar);
             this.panelSidebarTop.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelSidebarTop.Location = new System.Drawing.Point(0, 0);
             this.panelSidebarTop.Name = "panelSidebarTop";
@@ -417,36 +367,30 @@
             this.textCode.TabIndex = 13;
             this.textCode.TextChanged += new System.EventHandler(this.textComment_TextChanged);
             // 
-            // panelCommentTextToolbar
+            // panelCodeTextToolbar
             // 
-            this.panelCommentTextToolbar.Controls.Add(this.labelCode);
-            this.panelCommentTextToolbar.Controls.Add(this.buttonCopyComment);
-            this.panelCommentTextToolbar.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panelCommentTextToolbar.Location = new System.Drawing.Point(0, 0);
-            this.panelCommentTextToolbar.Name = "panelCommentTextToolbar";
-            this.panelCommentTextToolbar.Size = new System.Drawing.Size(320, 36);
-            this.panelCommentTextToolbar.TabIndex = 15;
+            this.panelCodeTextToolbar.Controls.Add(this.labelCode);
+            this.panelCodeTextToolbar.Controls.Add(this.buttonCopyComment);
+            this.panelCodeTextToolbar.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelCodeTextToolbar.Location = new System.Drawing.Point(0, 0);
+            this.panelCodeTextToolbar.Name = "panelCodeTextToolbar";
+            this.panelCodeTextToolbar.Size = new System.Drawing.Size(320, 36);
+            this.panelCodeTextToolbar.TabIndex = 15;
             // 
             // labelCode
             // 
             this.labelCode.AutoSize = true;
             this.labelCode.Location = new System.Drawing.Point(14, 9);
             this.labelCode.Name = "labelCode";
-            this.labelCode.Size = new System.Drawing.Size(35, 13);
+            this.labelCode.Size = new System.Drawing.Size(36, 13);
             this.labelCode.TabIndex = 12;
             this.labelCode.Text = "Code:";
             // 
-            // buttonCopyComment
+            // imageListRef
             // 
-            this.buttonCopyComment.Dock = System.Windows.Forms.DockStyle.Right;
-            this.buttonCopyComment.Image = ((System.Drawing.Image)(resources.GetObject("buttonCopyComment.Image")));
-            this.buttonCopyComment.Location = new System.Drawing.Point(284, 0);
-            this.buttonCopyComment.Name = "buttonCopyComment";
-            this.buttonCopyComment.Size = new System.Drawing.Size(36, 36);
-            this.buttonCopyComment.TabIndex = 14;
-            this.buttonCopyComment.Tag = "Copy to clipboard";
-            this.buttonCopyComment.UseVisualStyleBackColor = true;
-            this.buttonCopyComment.Click += new System.EventHandler(this.buttonCopyComment_Click);
+            this.imageListRef.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageListRef.ImageStream")));
+            this.imageListRef.TransparentColor = System.Drawing.Color.Transparent;
+            this.imageListRef.Images.SetKeyName(0, "WIN_20171108_121108.JPG");
             // 
             // panelSeparator
             // 
@@ -469,9 +413,9 @@
             // 
             // buttonAnalyze
             // 
-            this.buttonAnalyze.Location = new System.Drawing.Point(538, 23);
+            this.buttonAnalyze.Location = new System.Drawing.Point(526, 0);
             this.buttonAnalyze.Name = "buttonAnalyze";
-            this.buttonAnalyze.Size = new System.Drawing.Size(120, 39);
+            this.buttonAnalyze.Size = new System.Drawing.Size(120, 36);
             this.buttonAnalyze.TabIndex = 4;
             this.buttonAnalyze.Text = "Analyze";
             this.buttonAnalyze.UseVisualStyleBackColor = true;
@@ -479,15 +423,15 @@
             // 
             // textWorkingDir
             // 
-            this.textWorkingDir.Location = new System.Drawing.Point(113, 23);
+            this.textWorkingDir.Location = new System.Drawing.Point(115, 7);
             this.textWorkingDir.Name = "textWorkingDir";
             this.textWorkingDir.ReadOnly = true;
-            this.textWorkingDir.Size = new System.Drawing.Size(269, 20);
+            this.textWorkingDir.Size = new System.Drawing.Size(269, 21);
             this.textWorkingDir.TabIndex = 1;
             // 
             // buttonBrowse
             // 
-            this.buttonBrowse.Location = new System.Drawing.Point(399, 23);
+            this.buttonBrowse.Location = new System.Drawing.Point(400, 0);
             this.buttonBrowse.Name = "buttonBrowse";
             this.buttonBrowse.Size = new System.Drawing.Size(120, 36);
             this.buttonBrowse.TabIndex = 0;
@@ -498,9 +442,9 @@
             // labelWD
             // 
             this.labelWD.AutoSize = true;
-            this.labelWD.Location = new System.Drawing.Point(12, 23);
+            this.labelWD.Location = new System.Drawing.Point(12, 10);
             this.labelWD.Name = "labelWD";
-            this.labelWD.Size = new System.Drawing.Size(95, 13);
+            this.labelWD.Size = new System.Drawing.Size(97, 13);
             this.labelWD.TabIndex = 2;
             this.labelWD.Text = "Working Directory:";
             // 
@@ -508,9 +452,9 @@
             // 
             this.checkRTL.Appearance = System.Windows.Forms.Appearance.Button;
             this.checkRTL.AutoSize = true;
-            this.checkRTL.Location = new System.Drawing.Point(15, 52);
+            this.checkRTL.Location = new System.Drawing.Point(12, 78);
             this.checkRTL.Name = "checkRTL";
-            this.checkRTL.Size = new System.Drawing.Size(75, 23);
+            this.checkRTL.Size = new System.Drawing.Size(77, 23);
             this.checkRTL.TabIndex = 3;
             this.checkRTL.Text = "Right to Left";
             this.checkRTL.UseVisualStyleBackColor = true;
@@ -519,36 +463,56 @@
             // labelCulture
             // 
             this.labelCulture.AutoSize = true;
-            this.labelCulture.Location = new System.Drawing.Point(12, 81);
+            this.labelCulture.Location = new System.Drawing.Point(95, 83);
             this.labelCulture.Name = "labelCulture";
-            this.labelCulture.Size = new System.Drawing.Size(43, 13);
+            this.labelCulture.Size = new System.Drawing.Size(46, 13);
             this.labelCulture.TabIndex = 5;
             this.labelCulture.Text = "Culture:";
             // 
             // textCulture
             // 
-            this.textCulture.Location = new System.Drawing.Point(58, 78);
+            this.textCulture.Location = new System.Drawing.Point(147, 80);
             this.textCulture.Name = "textCulture";
-            this.textCulture.Size = new System.Drawing.Size(49, 20);
+            this.textCulture.Size = new System.Drawing.Size(49, 21);
             this.textCulture.TabIndex = 6;
             this.textCulture.Text = "en-US";
             // 
-            // panel1
+            // panelTop
             // 
-            this.panel1.BackColor = System.Drawing.Color.White;
-            this.panel1.Controls.Add(this.textCulture);
-            this.panel1.Controls.Add(this.labelCulture);
-            this.panel1.Controls.Add(this.checkRTL);
-            this.panel1.Controls.Add(this.labelWD);
-            this.panel1.Controls.Add(this.buttonBrowse);
-            this.panel1.Controls.Add(this.textWorkingDir);
-            this.panel1.Controls.Add(this.buttonAnalyze);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1008, 107);
-            this.panel1.TabIndex = 8;
-            this.panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
+            this.panelTop.BackColor = System.Drawing.Color.White;
+            this.panelTop.Controls.Add(this.panelWorkingDirBrowseAnalyze);
+            this.panelTop.Controls.Add(this.radioMiniCodelist);
+            this.panelTop.Controls.Add(this.labelView);
+            this.panelTop.Controls.Add(this.radioThreePanels);
+            this.panelTop.Controls.Add(this.textCulture);
+            this.panelTop.Controls.Add(this.labelCulture);
+            this.panelTop.Controls.Add(this.checkRTL);
+            this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelTop.Location = new System.Drawing.Point(0, 0);
+            this.panelTop.Name = "panelTop";
+            this.panelTop.Size = new System.Drawing.Size(1008, 107);
+            this.panelTop.TabIndex = 8;
+            this.panelTop.Resize += new System.EventHandler(this.panel1_Resize);
+            // 
+            // panelWorkingDirBrowseAnalyze
+            // 
+            this.panelWorkingDirBrowseAnalyze.Controls.Add(this.labelWD);
+            this.panelWorkingDirBrowseAnalyze.Controls.Add(this.textWorkingDir);
+            this.panelWorkingDirBrowseAnalyze.Controls.Add(this.buttonBrowse);
+            this.panelWorkingDirBrowseAnalyze.Controls.Add(this.buttonAnalyze);
+            this.panelWorkingDirBrowseAnalyze.Location = new System.Drawing.Point(0, 40);
+            this.panelWorkingDirBrowseAnalyze.Name = "panelWorkingDirBrowseAnalyze";
+            this.panelWorkingDirBrowseAnalyze.Size = new System.Drawing.Size(697, 35);
+            this.panelWorkingDirBrowseAnalyze.TabIndex = 11;
+            // 
+            // labelView
+            // 
+            this.labelView.AutoSize = true;
+            this.labelView.Location = new System.Drawing.Point(12, 20);
+            this.labelView.Name = "labelView";
+            this.labelView.Size = new System.Drawing.Size(33, 13);
+            this.labelView.TabIndex = 9;
+            this.labelView.Text = "View:";
             // 
             // timerAutoSaveHierarchy
             // 
@@ -563,11 +527,125 @@
             this.bwAnalyze.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.bwAnalyze_ProgressChanged);
             this.bwAnalyze.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.bwAnalyze_RunWorkerCompleted);
             // 
-            // imageListRef
+            // buttonSortTreeAZ
             // 
-            this.imageListRef.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
-            this.imageListRef.ImageSize = new System.Drawing.Size(160, 100);
-            this.imageListRef.TransparentColor = System.Drawing.Color.Transparent;
+            this.buttonSortTreeAZ.Dock = System.Windows.Forms.DockStyle.Right;
+            this.buttonSortTreeAZ.Image = global::WordCommentsAnalyzer.Properties.Resources.libre_gui_sort_alpha_asc32;
+            this.buttonSortTreeAZ.Location = new System.Drawing.Point(187, 0);
+            this.buttonSortTreeAZ.Name = "buttonSortTreeAZ";
+            this.buttonSortTreeAZ.Size = new System.Drawing.Size(36, 36);
+            this.buttonSortTreeAZ.TabIndex = 19;
+            this.buttonSortTreeAZ.Tag = "Save hierarchy";
+            this.buttonSortTreeAZ.UseVisualStyleBackColor = true;
+            this.buttonSortTreeAZ.Click += new System.EventHandler(this.buttonSortTreeAZ_Click);
+            // 
+            // buttonSave
+            // 
+            this.buttonSave.Dock = System.Windows.Forms.DockStyle.Right;
+            this.buttonSave.Image = global::WordCommentsAnalyzer.Properties.Resources.libre_gui_save_32;
+            this.buttonSave.Location = new System.Drawing.Point(223, 0);
+            this.buttonSave.Name = "buttonSave";
+            this.buttonSave.Size = new System.Drawing.Size(36, 36);
+            this.buttonSave.TabIndex = 17;
+            this.buttonSave.Tag = "Save hierarchy";
+            this.buttonSave.UseVisualStyleBackColor = true;
+            this.buttonSave.Click += new System.EventHandler(this.buttonSave_Click);
+            // 
+            // buttonDeleteHierarchyNode
+            // 
+            this.buttonDeleteHierarchyNode.Dock = System.Windows.Forms.DockStyle.Right;
+            this.buttonDeleteHierarchyNode.Image = global::WordCommentsAnalyzer.Properties.Resources.libre_gui_trash_32;
+            this.buttonDeleteHierarchyNode.Location = new System.Drawing.Point(259, 0);
+            this.buttonDeleteHierarchyNode.Name = "buttonDeleteHierarchyNode";
+            this.buttonDeleteHierarchyNode.Size = new System.Drawing.Size(36, 36);
+            this.buttonDeleteHierarchyNode.TabIndex = 15;
+            this.buttonDeleteHierarchyNode.Tag = "Delete node";
+            this.buttonDeleteHierarchyNode.UseVisualStyleBackColor = true;
+            this.buttonDeleteHierarchyNode.Click += new System.EventHandler(this.buttonDeleteHierarchyNode_Click);
+            // 
+            // buttonEditHierarchyNode
+            // 
+            this.buttonEditHierarchyNode.Dock = System.Windows.Forms.DockStyle.Right;
+            this.buttonEditHierarchyNode.Image = global::WordCommentsAnalyzer.Properties.Resources.libre_gui_edit_32;
+            this.buttonEditHierarchyNode.Location = new System.Drawing.Point(295, 0);
+            this.buttonEditHierarchyNode.Name = "buttonEditHierarchyNode";
+            this.buttonEditHierarchyNode.Size = new System.Drawing.Size(36, 36);
+            this.buttonEditHierarchyNode.TabIndex = 18;
+            this.buttonEditHierarchyNode.Tag = "Edit node";
+            this.buttonEditHierarchyNode.UseVisualStyleBackColor = true;
+            this.buttonEditHierarchyNode.Click += new System.EventHandler(this.buttonEditHierarchyNode_Click);
+            // 
+            // buttonAddHierarchyNode
+            // 
+            this.buttonAddHierarchyNode.Dock = System.Windows.Forms.DockStyle.Right;
+            this.buttonAddHierarchyNode.Image = global::WordCommentsAnalyzer.Properties.Resources.libre_gui_add_32;
+            this.buttonAddHierarchyNode.Location = new System.Drawing.Point(331, 0);
+            this.buttonAddHierarchyNode.Name = "buttonAddHierarchyNode";
+            this.buttonAddHierarchyNode.Size = new System.Drawing.Size(36, 36);
+            this.buttonAddHierarchyNode.TabIndex = 14;
+            this.buttonAddHierarchyNode.Tag = "Add node";
+            this.buttonAddHierarchyNode.UseVisualStyleBackColor = true;
+            this.buttonAddHierarchyNode.Click += new System.EventHandler(this.buttonAddHierarchyNode_Click);
+            // 
+            // buttonCopyRef
+            // 
+            this.buttonCopyRef.Dock = System.Windows.Forms.DockStyle.Right;
+            this.buttonCopyRef.Image = global::WordCommentsAnalyzer.Properties.Resources.libre_gui_copy_32;
+            this.buttonCopyRef.Location = new System.Drawing.Point(284, 0);
+            this.buttonCopyRef.Name = "buttonCopyRef";
+            this.buttonCopyRef.Size = new System.Drawing.Size(36, 36);
+            this.buttonCopyRef.TabIndex = 15;
+            this.buttonCopyRef.Tag = "Copy to clipboard";
+            this.buttonCopyRef.UseVisualStyleBackColor = true;
+            this.buttonCopyRef.Click += new System.EventHandler(this.buttonCopyRef_Click);
+            // 
+            // buttonCopyComment
+            // 
+            this.buttonCopyComment.Dock = System.Windows.Forms.DockStyle.Right;
+            this.buttonCopyComment.Image = global::WordCommentsAnalyzer.Properties.Resources.libre_gui_copy_32;
+            this.buttonCopyComment.Location = new System.Drawing.Point(284, 0);
+            this.buttonCopyComment.Name = "buttonCopyComment";
+            this.buttonCopyComment.Size = new System.Drawing.Size(36, 36);
+            this.buttonCopyComment.TabIndex = 14;
+            this.buttonCopyComment.Tag = "Copy to clipboard";
+            this.buttonCopyComment.UseVisualStyleBackColor = true;
+            this.buttonCopyComment.Click += new System.EventHandler(this.buttonCopyComment_Click);
+            // 
+            // radioMiniCodelist
+            // 
+            this.radioMiniCodelist.Appearance = System.Windows.Forms.Appearance.Button;
+            this.radioMiniCodelist.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(255)))));
+            this.radioMiniCodelist.FlatAppearance.CheckedBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(255)))));
+            this.radioMiniCodelist.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.radioMiniCodelist.Image = global::WordCommentsAnalyzer.Properties.Resources.libre_gui_view_one_column_modified_24;
+            this.radioMiniCodelist.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.radioMiniCodelist.Location = new System.Drawing.Point(169, 12);
+            this.radioMiniCodelist.Name = "radioMiniCodelist";
+            this.radioMiniCodelist.Size = new System.Drawing.Size(94, 28);
+            this.radioMiniCodelist.TabIndex = 10;
+            this.radioMiniCodelist.Text = "Mini code list";
+            this.radioMiniCodelist.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.radioMiniCodelist.UseVisualStyleBackColor = true;
+            this.radioMiniCodelist.CheckedChanged += new System.EventHandler(this.View_Changed);
+            // 
+            // radioThreePanels
+            // 
+            this.radioThreePanels.Appearance = System.Windows.Forms.Appearance.Button;
+            this.radioThreePanels.Checked = true;
+            this.radioThreePanels.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(255)))));
+            this.radioThreePanels.FlatAppearance.CheckedBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(255)))));
+            this.radioThreePanels.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.radioThreePanels.Image = global::WordCommentsAnalyzer.Properties.Resources.libre_gui_view_column_24;
+            this.radioThreePanels.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.radioThreePanels.Location = new System.Drawing.Point(51, 12);
+            this.radioThreePanels.Name = "radioThreePanels";
+            this.radioThreePanels.Size = new System.Drawing.Size(107, 28);
+            this.radioThreePanels.TabIndex = 8;
+            this.radioThreePanels.TabStop = true;
+            this.radioThreePanels.Text = "Three panels";
+            this.radioThreePanels.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.radioThreePanels.UseVisualStyleBackColor = true;
+            this.radioThreePanels.CheckedChanged += new System.EventHandler(this.View_Changed);
             // 
             // Main
             // 
@@ -576,11 +654,13 @@
             this.ClientSize = new System.Drawing.Size(1008, 729);
             this.Controls.Add(this.panelParent);
             this.Controls.Add(this.panelSeparator);
-            this.Controls.Add(this.panel1);
+            this.Controls.Add(this.panelTop);
             this.Controls.Add(this.textLog);
+            this.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Name = "Main";
             this.Text = "Word Comments Analyzer []";
             this.Load += new System.EventHandler(this.Form1_Load);
+            this.Resize += new System.EventHandler(this.Main_Resize);
             this.panelParent.ResumeLayout(false);
             this.panelNode.ResumeLayout(false);
             this.panelNodeTop.ResumeLayout(false);
@@ -594,11 +674,13 @@
             this.panelReferenceTextToolbar.PerformLayout();
             this.panelSidebarTop.ResumeLayout(false);
             this.panelSidebarTop.PerformLayout();
-            this.panelCommentTextToolbar.ResumeLayout(false);
-            this.panelCommentTextToolbar.PerformLayout();
+            this.panelCodeTextToolbar.ResumeLayout(false);
+            this.panelCodeTextToolbar.PerformLayout();
             this.panelSeparator.ResumeLayout(false);
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
+            this.panelTop.ResumeLayout(false);
+            this.panelTop.PerformLayout();
+            this.panelWorkingDirBrowseAnalyze.ResumeLayout(false);
+            this.panelWorkingDirBrowseAnalyze.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -607,7 +689,7 @@
         #endregion
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
         private System.Windows.Forms.TextBox textLog;
-        private System.ComponentModel.BackgroundWorker bgwFilterCodes;
+        private System.ComponentModel.BackgroundWorker bwFilterCodes;
         private System.Windows.Forms.Panel panelParent;
         private System.Windows.Forms.Splitter splitterMiddleRight;
         private System.Windows.Forms.Splitter splitterLeftMiddle;
@@ -624,7 +706,7 @@
         private System.Windows.Forms.Panel panelReferenceTextToolbar;
         private System.Windows.Forms.Label labelNumberOfNodes;
         private System.Windows.Forms.Panel panelNodeTop;
-        private System.Windows.Forms.Panel panelCommentTextToolbar;
+        private System.Windows.Forms.Panel panelCodeTextToolbar;
         private System.Windows.Forms.Panel panelNode;
         private System.Windows.Forms.Panel panelMiddle;
         private System.Windows.Forms.TreeView treeViewHierarchy;
@@ -635,8 +717,8 @@
         private System.Windows.Forms.ColumnHeader columnCode;
         private System.Windows.Forms.ColumnHeader columnFreq;
         private System.Windows.Forms.ListView listViewRef;
-        private System.Windows.Forms.ColumnHeader columnText;
-        private System.Windows.Forms.ColumnHeader columnFile;
+        private System.Windows.Forms.ColumnHeader columnTextorCodes;
+        private System.Windows.Forms.ColumnHeader columnCodesorFile;
         private System.Windows.Forms.Panel panelSeparator;
         private System.Windows.Forms.Button buttonAnalyze;
         private System.Windows.Forms.TextBox textWorkingDir;
@@ -645,7 +727,7 @@
         private System.Windows.Forms.CheckBox checkRTL;
         private System.Windows.Forms.Label labelCulture;
         private System.Windows.Forms.TextBox textCulture;
-        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Panel panelTop;
         private System.Windows.Forms.Label labelCodeHierarchy;
         private System.Windows.Forms.Timer timerAutoSaveHierarchy;
         private System.Windows.Forms.Button buttonSave;
@@ -653,6 +735,12 @@
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.ComponentModel.BackgroundWorker bwAnalyze;
         private System.Windows.Forms.ImageList imageListRef;
+        private System.Windows.Forms.ColumnHeader columnFileorNone;
+        private System.Windows.Forms.Label labelView;
+        private System.Windows.Forms.RadioButton radioThreePanels;
+        private System.Windows.Forms.RadioButton radioMiniCodelist;
+        private System.Windows.Forms.Panel panelWorkingDirBrowseAnalyze;
+        private System.Windows.Forms.Button buttonSortTreeAZ;
     }
 }
 

@@ -55,10 +55,19 @@ namespace WordCommentsAnalyzer
             //System.Diagnostics.Debug.WriteLine("treeViewHierarchy_DragOver");
             // Retrieve the client coordinates of the mouse position.
             Point targetPoint = treeViewHierarchy.PointToClient(new Point(e.X, e.Y));
-            isTreeViewHierarchyDoingDragOver = true; // this is to prevent showing reference texts
-            // Select the node at the mouse position.
-            treeViewHierarchy.SelectedNode = treeViewHierarchy.GetNodeAt(targetPoint);
-            isTreeViewHierarchyDoingDragOver = false;
+            // Get the node at the mouse position.
+            var nodeAt = treeViewHierarchy.GetNodeAt(targetPoint);
+            //The IsMouseOnEmptyArea is just for reuse and readibility. I recognize that we already have the node
+            //and we do this twice
+            if (IsMouseOnEmptyArea(treeViewHierarchy, e.X, e.Y)) { 
+                treeViewHierarchy.SelectedNode = null;
+            }
+            else
+            {
+                isTreeViewHierarchyDoingDragOver = true;
+                treeViewHierarchy.SelectedNode = nodeAt;
+                isTreeViewHierarchyDoingDragOver = false;
+            }
 
         }
 
@@ -69,10 +78,14 @@ namespace WordCommentsAnalyzer
 
             // Retrieve the node at the drop location.
             TreeNode targetNode = treeViewHierarchy.GetNodeAt(targetPoint);
-            if (targetNode == null)
+            if (IsMouseOnEmptyArea(treeViewHierarchy,e.X,e.Y))
             {
-                MessageBox.Show("Please move the code to one of the nodes or the root node ('Code Hierarchy')","Move to node",MessageBoxButtons.OK,MessageBoxIcon.Information);
-                return;
+              var result =  MessageBox.Show("You dropped the code into an empty area. Do you want to drop the code into the root node ('Code Hierarchy')?","Drop to the root?",MessageBoxButtons.YesNo,MessageBoxIcon.Question);
+                if (result == DialogResult.Yes)
+                {
+                    targetNode = treeViewHierarchy.Nodes[0];
+                }
+                else return;
             }
             TreeNode draggedNode = (TreeNode)e.Data.GetData(typeof(TreeNode));
             if (draggedNode != null) //i.e., if it is of TreeNode type
