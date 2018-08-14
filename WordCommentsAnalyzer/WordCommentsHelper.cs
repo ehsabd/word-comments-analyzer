@@ -34,7 +34,7 @@ namespace WordCommentsAnalyzer
             string removePattern = "[" + "\u200D" //Zero Width Joiner
                 + "]";
 
-            char[] trimChars = { ':',';', '"', '\'', ',', '.', '،', '؛','\t','\n','\r'};
+            char[] trimChars = { ':',';', '"', '\'', ',', '.', '،', '؛','\t','\n','\r',' '};
             return comment.Descendants<Paragraph>()
                 .Select(
                 el => Regex.Replace(

@@ -11,7 +11,6 @@ namespace WordCommentsAnalyzer
     {
         public static void ClearData()
         {
-            CodesInHierarchy.Clear(); 
             CodesDictionary.Clear(); 
             DataExtracts.Clear();
             FileInfosDictionary.Clear();
@@ -108,14 +107,6 @@ namespace WordCommentsAnalyzer
             FileInfosDictionary.Add(key, fi);
             return key;
         }
-
-        /// <summary>
-        /// to know which codes (from document codes) are present in the code hierarchy 
-        /// this needs to be an observable collection because we only want to change color of 
-        /// codes that are changed. It may have a better performance than checking every code after a change in 
-        /// hierarchy.
-        /// </summary>
-        public static ObservableCollection<string> CodesInHierarchy = new ObservableCollection<string>();
 
         public static List<CodeStat> CodeStatList = new List<CodeStat>();
         public static List<CodeStat> FilteredCodeStatList = new List<CodeStat>();

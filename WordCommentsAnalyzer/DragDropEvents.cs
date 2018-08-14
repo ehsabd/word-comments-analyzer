@@ -88,26 +88,12 @@ namespace WordCommentsAnalyzer
                 else return;
             }
             TreeNode draggedNode = (TreeNode)e.Data.GetData(typeof(TreeNode));
-            if (draggedNode != null) //i.e., if it is of TreeNode type
+            if (draggedNode != null) //i.e., if it is of TreeNode type so a MOVE
             {
-                // Retrieve the node that was dragged.
-                // Confirm that the node at the drop location is not 
-                // the dragged node or a descendant of the dragged node.
-                if (!draggedNode.Equals(targetNode) && !ContainsNode(draggedNode, targetNode))
-                {
-                    //We clone the node for both copy and move because we do not know in advance whether it 
-                    //is duplicate or not (this will be determined in AddNonDuplicateNode)
-                    //then we remove it if it wasn't duplicate and the effect was Move
-
-                    var result = AddNonDuplicateNode(targetNode, (TreeNode)draggedNode.Clone());
-
-                    if (result && e.Effect == DragDropEffects.Move)
-                    {
-                        draggedNode.Remove();
-                    }
-                }
+                if (e.Effect == DragDropEffects.Move)
+                    MoveHierarchyNode(draggedNode, targetNode);
             }
-            else
+            else //it is a new item from the listview
             {
                 var draggedItem = (ListViewItem)e.Data.GetData(typeof(ListViewItem));
                 if (draggedItem != null)
@@ -115,7 +101,7 @@ namespace WordCommentsAnalyzer
                     var text = draggedItem.Text;
                     var node = new TreeNode { Name = text, Text = text };
                     if (AddNonDuplicateNode(targetNode, node)) {
-                        Models.CodesInHierarchy.Add(text);
+                        HandlePossibleChangeInHierarchy(text);
                     }
 
                 }
@@ -143,18 +129,44 @@ namespace WordCommentsAnalyzer
                 MessageBox.Show("Can not append a code to itself", "Can not add", MessageBoxButtons.OK, MessageBoxIcon.Stop);
                 return false;
             }
-            var found = targetNode.Nodes.Find(newNode.Text, false);
-            if (found.Count()==0)
-            {
-                targetNode.Nodes.Add(newNode);
-                targetNode.Expand();
 
-                return true;
+            foreach (TreeNode n in targetNode.Nodes) //immediate children of the targetnode
+            {
+                if (n.Text == newNode.Text)
+                {
+                    MessageBox.Show("This code exists in the immediate children of the target node", "Can not add", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                    return false;
+                }
+            } 
+
+
+            targetNode.Nodes.Add(newNode);
+            newNode.Name = newNode.FullPath;
+            targetNode.Expand();
+            return true;
+            
+            
+            
+        }
+
+        private void MoveHierarchyNode(TreeNode move, TreeNode targetNode)
+        {
+            // Confirm that the node we want to move to is not the going-to-moved node or its descendant.
+            // NOTE that we need this in addition to duplicate check because it only checks for text duplicates in the
+            // immediate children of the node 
+            if (!move.Equals(targetNode) && !ContainsNode(move, targetNode))
+            {
+                //We clone the node for both copy and move because we do not know in advance whether it 
+                //is duplicate or not (this will be determined in AddNonDuplicateNode)
+                //then we remove it if it wasn't duplicate 
+
+                var result = AddNonDuplicateNode(targetNode, (TreeNode)move.Clone());
+
+                if (result)
+                {
+                    move.Remove();
+                }
             }
-            
-            MessageBox.Show("This code exists in the immediate children of the target node","Can not add",MessageBoxButtons.OK,MessageBoxIcon.Stop);
-            return false;
-            
         }
 
     }

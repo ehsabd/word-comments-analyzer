@@ -33,15 +33,26 @@ namespace WordCommentsAnalyzer
             return string.Join(Environment.NewLine, textList);
         }
 
-        public static List<string> GetTreeNodeNamesRecursive(TreeNode treeNode)
+        public static List<string> GetTreeNodeTextsRecursive(TreeNode treeNode)
         {
-            var names = new List<string>();
-            names.Add(treeNode.Name);//No need to check for duplicates, the list is empty!
+            var texts = new List<string>();
+            texts.Add(treeNode.Text);
             foreach (TreeNode tn in treeNode.Nodes)
             {
-                names = names.Union(GetTreeNodeNamesRecursive(tn)).ToList();
+                texts = texts.Union(GetTreeNodeTextsRecursive(tn)).ToList();
             }
-            return names;
+            return texts;
+        }
+
+        public static List<TreeNode> GetTreeNodesRecursive(TreeNode treeNode)
+        {
+            var nodes = new List<TreeNode>();
+            nodes.Add(treeNode);//No need to check for duplicates, the list is empty!
+            foreach (TreeNode tn in treeNode.Nodes)
+            {
+                nodes = nodes.Union(GetTreeNodesRecursive(tn)).ToList();
+            }
+            return nodes;
         }
     }
 }

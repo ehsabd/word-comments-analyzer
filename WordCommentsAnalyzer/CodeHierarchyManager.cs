@@ -69,8 +69,7 @@ namespace WordCommentsAnalyzer
            */
         public void ReadCodeHierarchyFile()
         {
-            
-            
+
             treeViewHierarchy.Nodes.Clear();
             var path = GetCodeHierarchyFilePath;
             CodeHierarchyNodesText = "";
@@ -78,40 +77,49 @@ namespace WordCommentsAnalyzer
             It makes drag-n-drop for parent nodes both easier and safer
             It makes add/remove nodes both easier and safer.
             */
-            treeViewHierarchy.Nodes.Add("root","Code Hierarchy");
-            if (!File.Exists(path)) return;
+            treeViewHierarchy.Nodes.Add("root", "Code Hierarchy");
+            
             try
             {
-                CodeHierarchyNodesText = System.IO.File.ReadAllText(path);
-                
+                if (File.Exists(path))
+                {
+                    CodeHierarchyNodesText = System.IO.File.ReadAllText(path);
+                }
             }
             catch (Exception ex)
             {
                 textLog.Text += string.Join(" ", "Error reading code hierarchy file: ", GetCodeHierarchyFilePath, ex.Message);
             }
-            if (CodeHierarchyNodesText == "") return;
+
             treeViewHierarchy.BeginUpdate();
             // Break the file into lines.
             string[] lines = CodeHierarchyNodesText.Split(
                 new char[] { '\r', '\n' },
                 StringSplitOptions.RemoveEmptyEntries);
-            
+
             Dictionary<int, TreeNode> currentParents =
                     new Dictionary<int, TreeNode>();
-            try {
-                foreach (var l in lines)
+            var codesInHierarchy = new System.Collections.ObjectModel.ObservableCollection<string>();
+
+            try
+            {
+                if (CodeHierarchyNodesText != "")
                 {
-                    var trimmed = l.TrimStart('\t');
+                    foreach (var l in lines)
+                    {
+                        var trimmed = l.TrimStart('\t');
 
-                    int level = l.Length - trimmed.Length;
+                        int level = l.Length - trimmed.Length;
 
-                    // Add the new node.
-                    if (level == 0)
-                        currentParents[level] = treeViewHierarchy.Nodes[0].Nodes.Add(trimmed, trimmed);//both key and text equals to the code string
-                    else
-                        currentParents[level] = currentParents[level - 1].Nodes.Add(trimmed, trimmed);//both key and text equals to the code string
-                    Models.CodesInHierarchy.Add(trimmed);
-                    currentParents[level].EnsureVisible();
+                        // Add the new node.
+                        if (level == 0)
+                            currentParents[level] = AddNodeWithFullPathKey( treeViewHierarchy.Nodes[0],trimmed);
+                        else
+                            currentParents[level] = AddNodeWithFullPathKey(currentParents[level - 1], trimmed);
+                        codesInHierarchy.Add(trimmed);
+                        
+                        currentParents[level].EnsureVisible();
+                    }
                 }
             }
             catch (Exception ex)
@@ -121,11 +129,19 @@ namespace WordCommentsAnalyzer
             finally
             {
                 treeViewHierarchy.EndUpdate();
+                UpdateHierarchyNodeNumbers();
             }
+        }
+        
+
+        public void UpdateHierarchyNodeNumbers()
+        {
+            var count = TreeNodeRecursive.GetTreeNodeTextsRecursive(treeViewHierarchy.Nodes[0]).Count();
+            labelCodeHierarchy.Text = System.Text.RegularExpressions.Regex.Replace(labelCodeHierarchy.Text, @"\(.*\)", string.Format("({0})", count));
 
         }
 
-      
+
 
     }
 }

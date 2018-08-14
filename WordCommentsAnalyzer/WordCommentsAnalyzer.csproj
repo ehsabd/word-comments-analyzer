@@ -75,6 +75,7 @@
     <Compile Include="AnalyzeMethods.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="ArabicPersianTextHelper.cs" />
     <Compile Include="CodeHierarchyManager.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -82,6 +83,12 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Extensions.cs" />
+    <Compile Include="FormMoveTo.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormMoveTo.Designer.cs">
+      <DependentUpon>FormMoveTo.cs</DependentUpon>
+    </Compile>
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -93,6 +100,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TreeNodeRecursive.cs" />
     <Compile Include="WordCommentsHelper.cs" />
+    <EmbeddedResource Include="FormMoveTo.resx">
+      <DependentUpon>FormMoveTo.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>
       <SubType>Designer</SubType>
