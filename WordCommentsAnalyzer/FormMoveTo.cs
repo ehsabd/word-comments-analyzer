@@ -12,11 +12,13 @@ namespace WordCommentsAnalyzer
 {
     public partial class FormMoveTo : Form
     {
+        private string nodeToMoveName { get; set; }
         public string SelectedNodeName { get; set; }
-        public FormMoveTo(string text)
+        public FormMoveTo(string text, string nodeToMoveName)
         {
             InitializeComponent();
             this.Text = text;
+            this.nodeToMoveName = nodeToMoveName;
         }
 
         private void FormMoveTo_Load(object sender, EventArgs e)
@@ -29,16 +31,59 @@ namespace WordCommentsAnalyzer
             
             var main = (Main)this.Owner;
             treeViewMoveTo.Nodes.Clear();
-            if (textFilter.Text.Length < 3) return;
-            var nodes = main.SearchCodeHierarchyFirstLevelNodesChildren(textFilter.Text);
+            if (textFilter.Text.Length < 2) return;
+            var filterBy = textFilter.Text;
+            var hierarchyRoot = main.GetHierarchyRootNode();
+            treeViewMoveTo.Nodes.Add((TreeNode)hierarchyRoot.Clone());
+            var nodes =
+                TreeNodeRecursive.GetTreeNodesTopDownRecursive(treeViewMoveTo.Nodes[0]);
+
+
+          
+            var sortedByLevel =  new Dictionary<int, List<TreeNode>>();
             foreach (var n in nodes)
             {
-                treeViewMoveTo.Nodes.Add((TreeNode)n.Clone());
+                var level = n.Level;
+                if (!sortedByLevel.ContainsKey(n.Level))
+                {
+                    sortedByLevel.Add(level, new List<TreeNode>());
+                }
+                    sortedByLevel[level].Add(n); 
             }
 
-            treeViewMoveTo.ExpandAll();
-        }
+            var maxLevel = sortedByLevel.Max(pair => pair.Key);
 
+            //Prunning the tree (Bottom-Up)
+            for (var lv=maxLevel; lv >= 0; lv--)
+                {
+                    for (var i = sortedByLevel[lv].Count-1; i >=0; i--)
+                    {
+                        var node = sortedByLevel[lv][i];
+                        //NOTE That we do not include nodes that starts with the name (i.e., full path) of the node we are moving (i.e., its decendants)
+                        if (
+                        node.Name.StartsWith(nodeToMoveName, StringComparison.OrdinalIgnoreCase)
+                        || // Also we must prune nodes that niether match to our filter nor have any children
+                        !node.Text.Contains(filterBy, StringComparison.OrdinalIgnoreCase)
+                            && node.Nodes.Count == 0
+                        )
+                        {
+                            RemoveNodeWithName(node.Name);
+                            sortedByLevel[lv].RemoveAt(i);
+                            
+                            
+                        }
+                       
+                    }
+                }
+
+            treeViewMoveTo.ExpandAll();
+            
+        }
+        private void RemoveNodeWithName(string name)
+        {
+            var found = treeViewMoveTo.Nodes.Find(name, true);
+            found[0].Remove();
+        }
         // Draws a node.
         private void treeViewMoveTo_DrawNode(
             object sender, DrawTreeNodeEventArgs e)
@@ -101,39 +146,6 @@ namespace WordCommentsAnalyzer
             }
             
         }
-
-        private void treeViewMoveTo_AfterSelect(object sender, TreeViewEventArgs e)
-        {
-            SelectedNodeName = treeViewMoveTo.SelectedNode.Name;
-        }
-
-
-
-        // Returns the bounds of the specified node, including the region 
-        // occupied by the node label and any node tag displayed.
-        /*
-        private Rectangle NodeBounds(TreeNode node)
-        {
-            // Set the return value to the normal node bounds.
-            Rectangle bounds = node.Bounds;
-            if (node.Tag != null)
-            {
-                // Retrieve a Graphics object from the TreeView handle
-                // and use it to calculate the display width of the tag.
-                Graphics g = treeViewMoveTo.CreateGraphics();
-                int tagWidth = (int)g.MeasureString
-                    (node.Tag.ToString(), tagFont).Width + 6;
-
-                // Adjust the node bounds using the calculated value.
-                bounds.Offset(tagWidth / 2, 0);
-                bounds = Rectangle.Inflate(bounds, tagWidth / 2, 0);
-                g.Dispose();
-            }
-
-            return bounds;
-
-        }*/
-
 
     }
 }

@@ -19,7 +19,7 @@ namespace WordCommentsAnalyzer
            return string.Join(Environment.NewLine, textList);
        }*/
 
-        public static string TreeNodeToTextRecursive(TreeNode treeNode)
+        public static string TreeNodeToTextTopDownRecursive(TreeNode treeNode)
         {
             var textList = new List<string>();
             if (treeNode.Level > 0)
@@ -28,31 +28,32 @@ namespace WordCommentsAnalyzer
             }
             foreach (TreeNode tn in treeNode.Nodes)
             {
-                textList.Add(TreeNodeToTextRecursive(tn));
+                textList.Add(TreeNodeToTextTopDownRecursive(tn));
             }
             return string.Join(Environment.NewLine, textList);
         }
 
-        public static List<string> GetTreeNodeTextsRecursive(TreeNode treeNode)
+        public static List<string> GetTreeNodeTextsTopDownRecursive(TreeNode treeNode)
         {
             var texts = new List<string>();
             texts.Add(treeNode.Text);
             foreach (TreeNode tn in treeNode.Nodes)
             {
-                texts = texts.Union(GetTreeNodeTextsRecursive(tn)).ToList();
+                texts = texts.Union(GetTreeNodeTextsTopDownRecursive(tn)).ToList();
             }
             return texts;
         }
 
-        public static List<TreeNode> GetTreeNodesRecursive(TreeNode treeNode)
+        public static List<TreeNode> GetTreeNodesTopDownRecursive(TreeNode treeNode)
         {
             var nodes = new List<TreeNode>();
             nodes.Add(treeNode);//No need to check for duplicates, the list is empty!
             foreach (TreeNode tn in treeNode.Nodes)
             {
-                nodes = nodes.Union(GetTreeNodesRecursive(tn)).ToList();
+                nodes = nodes.Union(GetTreeNodesTopDownRecursive(tn)).ToList();
             }
             return nodes;
         }
+
     }
 }

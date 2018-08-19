@@ -39,13 +39,16 @@ namespace WordCommentsAnalyzer
 
         private const string NewHierarchyNodeName = "New Node";
 
+        private System.Drawing.Color highightBackColor = System.Drawing.Color.FromArgb(255, 235, 255, 150);
+        private System.Drawing.Color highightForeColor = System.Drawing.Color.Black;
 
         private string filteredBy = "";
         private string CodeHierarchyNodesText = "";
         private static string WorkingDirectory;
         private static int fullWidth = 0;
 
-        private int checkCodeIndex = 0;
+        private List<TreeNode> foundHierarchyNodes = new List<TreeNode>();
+        private int foundHierarchyIndex = 0;
 
         public Main()
         {
@@ -91,6 +94,12 @@ namespace WordCommentsAnalyzer
             textWorkingDir.Text = WorkingDirectory ?? "";
             PrepareTooltips(this);
         }
+        private void SetListViewItemColor(ListViewItem lvt, bool highlight)
+        {
+            lvt.BackColor = highlight ? highightBackColor : System.Drawing.Color.White;
+            lvt.ForeColor = highlight ? highightForeColor : System.Drawing.Color.Black;
+           
+        }
 
         private void UpdateCodeBackground(string code)
         {
@@ -98,13 +107,13 @@ namespace WordCommentsAnalyzer
             var codeInListview = listViewCodes.Items.Find(code, false);
             if (codeInListview.Count() > 0)
             {
-                codeInListview[0].BackColor = IsCodeInHierarchy(code) ? System.Drawing.Color.LightGoldenrodYellow : System.Drawing.Color.White;
+                SetListViewItemColor(codeInListview[0], IsCodeInHierarchy(code));
             }
         }
 
         private bool IsCodeInHierarchy(string code)
         {
-            var codesInHierarchy = TreeNodeRecursive.GetTreeNodeTextsRecursive(treeViewHierarchy.Nodes[0]);
+            var codesInHierarchy = TreeNodeRecursive.GetTreeNodeTextsTopDownRecursive(treeViewHierarchy.Nodes[0]);
             return codesInHierarchy.Contains(code);
         }
 
@@ -146,19 +155,16 @@ namespace WordCommentsAnalyzer
         {
             listViewCodes.Items.Clear();
             listViewCodes.BeginUpdate();
-            var codesInHierarchy = TreeNodeRecursive.GetTreeNodeTextsRecursive(treeViewHierarchy.Nodes[0]);
+            var codesInHierarchy = TreeNodeRecursive.GetTreeNodeTextsTopDownRecursive(treeViewHierarchy.Nodes[0]);
 
             foreach (var cs in Models.FilteredCodeStatList)
             {
                 var code = cs.Code.Value;
                 var item = new ListViewItem(new string[] { code, cs.Frequency.ToString() });
                 item.Name = code;
-                item.BackColor =
-                    (codesInHierarchy.Contains(code)) ?
-                    System.Drawing.Color.LightGoldenrodYellow
-                    :
-                    System.Drawing.Color.White
-                    ;
+                SetListViewItemColor(item, 
+                    codesInHierarchy.Contains(code) //NOTE that codesInHierarchy is built locally in this method
+                    );
                 listViewCodes.Items.Add(item);
             }
 
@@ -183,15 +189,33 @@ namespace WordCommentsAnalyzer
 
         private void checkRTL_CheckedChanged(object sender, EventArgs e)
         {
+           
+            var rootNode = treeViewHierarchy.Nodes.Count>0? treeViewHierarchy.Nodes[0]:null;
+            treeViewHierarchy.Nodes.Clear();
+
+            listViewCodes.BeginUpdate();
+            treeViewHierarchy.BeginUpdate();
+            listViewRef.BeginUpdate();
+
             var rtl = checkRTL.Checked ? RightToLeft.Yes : RightToLeft.No;
+
             listViewCodes.RightToLeftLayout = checkRTL.Checked;
+            treeViewHierarchy.RightToLeftLayout = checkRTL.Checked;
+            listViewRef.RightToLeftLayout = checkRTL.Checked;
             listViewCodes.RightToLeft = rtl;
-            treeViewHierarchy.RightToLeftLayout = checkRTL.Checked;
             treeViewHierarchy.RightToLeft = rtl;
-            treeViewHierarchy.ExpandAll();
-            treeViewHierarchy.RightToLeftLayout = checkRTL.Checked;
             listViewRef.RightToLeft = rtl;
+
             textCode.RightToLeft = rtl;
+            if (rootNode != null)
+            {
+                treeViewHierarchy.Nodes.Add(rootNode);
+            }
+            treeViewHierarchy.ExpandAll();
+
+            treeViewHierarchy.EndUpdate();
+            listViewCodes.EndUpdate();
+            listViewRef.EndUpdate();
         }
 
 
@@ -279,7 +303,7 @@ namespace WordCommentsAnalyzer
             if (isTreeViewHierarchyDoingDragOver) return;
 
             textCode.Text = e.Node.Text;
-            var recursiveChildNodeNames = TreeNodeRecursive.GetTreeNodeTextsRecursive(e.Node);
+            var recursiveChildNodeNames = TreeNodeRecursive.GetTreeNodeTextsTopDownRecursive(e.Node);
             var codeObjects = (from name in recursiveChildNodeNames
                                join pair in Models.CodesDictionary
                                on name equals pair.Key
@@ -609,7 +633,10 @@ namespace WordCommentsAnalyzer
 
         private void menuItemMoveTo_Click(object sender, EventArgs e)
         {
-                var moveTo = new FormMoveTo(menuItemMoveTo.Text);
+            var nodeToMoveName = (string)menuItemMoveTo.Tag;
+            var move = treeViewHierarchy.Nodes.Find(nodeToMoveName, true)[0];
+
+            var moveTo = new FormMoveTo(menuItemMoveTo.Text, nodeToMoveName);
                 
                 var pt = Cursor.Position;
                 var screenWidth = Screen.GetBounds(pt).Width;
@@ -618,34 +645,81 @@ namespace WordCommentsAnalyzer
                 moveTo.Left = (pt.X + moveTo.Width) > screenWidth-50 ? screenWidth - moveTo.Width-50 : pt.X;
                 moveTo.Top = (pt.Y + moveTo.Height) > screenHeight-50 ? screenHeight - moveTo.Height-50 : pt.Y;
                 if (moveTo.ShowDialog(this) == DialogResult.OK) {
+                if (moveTo.SelectedNodeName == null)
+                {
+                    MessageBox.Show("You have not selected any nodes to move this node to", "No target node selected", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
                 var targetNode = treeViewHierarchy.Nodes.Find(moveTo.SelectedNodeName, true)[0];
-                var move = treeViewHierarchy.Nodes.Find((string)menuItemMoveTo.Tag, true)[0];
                  
                     MoveHierarchyNode(move, targetNode);
                 };
                 moveTo.Dispose();
         }
-
-        public List<TreeNode> SearchCodeHierarchyFirstLevelNodesChildren (string search)
+       
+        public TreeNode GetHierarchyRootNode()
         {
-            var nodes = new List<TreeNode>();
-
-            var firstLevelNodes = treeViewHierarchy.Nodes[0].Nodes;
-            foreach (TreeNode fln in firstLevelNodes)
-            {
-                var recursiveNodesContainingSearch =
-                    TreeNodeRecursive.GetTreeNodesRecursive(fln).Where(n => n.Text.Contains(search));
-                if (recursiveNodesContainingSearch.GetEnumerator().MoveNext()) // it is not empty
-                {
-                    nodes.Add(fln);
-                }  
-            }
-            return nodes.ToList();
+            return treeViewHierarchy.Nodes[0];
         }
 
         private void menuItemMoveTo_MouseUp(object sender, MouseEventArgs e)
         {
             
+        }
+
+        private void textHierarchyFind_TextChanged(object sender, EventArgs e)
+        {
+             foundHierarchyNodes =
+                TreeNodeRecursive.GetTreeNodesTopDownRecursive(treeViewHierarchy.Nodes[0])
+                .Where(t => t.Level>0 && t.Text.Contains(textHierarchyFind.Text, StringComparison.OrdinalIgnoreCase)).ToList();
+            foundHierarchyIndex = 0;
+            if (foundHierarchyNodes.Count > 0)
+            {
+                ShowCurrentFound();
+            }
+            else
+            {
+                labelFindHierarchyIndex.Text = "";
+            }
+            
+        }
+        private void ShowCurrentFound()
+        {
+            if (foundHierarchyNodes.Count > 0)
+            {
+                labelFindHierarchyIndex.Text = (foundHierarchyIndex+1) + "/" + foundHierarchyNodes.Count;
+               var node = foundHierarchyNodes[foundHierarchyIndex];
+                treeViewHierarchy.SelectedNode = node;
+               
+               if (node.Parent!=null && node.Parent.Nodes.Count < treeViewHierarchy.Height / 2 / node.Bounds.Height)
+                {
+                    treeViewHierarchy.TopNode = node.Parent;
+                }
+                else
+                {
+                    treeViewHierarchy.TopNode = node;
+                }
+                
+                
+            }
+        }
+
+        private void buttonFindHierarchyPrev_Click(object sender, EventArgs e)
+        {
+            if (foundHierarchyIndex > 0)
+            {
+                foundHierarchyIndex--;
+                ShowCurrentFound();
+            }
+        }
+
+        private void buttonFindHierarchyNext_Click(object sender, EventArgs e)
+        {
+            if (foundHierarchyIndex < foundHierarchyNodes.Count-1)
+            {
+                foundHierarchyIndex++;
+                ShowCurrentFound();
+            }
         }
     }
 }

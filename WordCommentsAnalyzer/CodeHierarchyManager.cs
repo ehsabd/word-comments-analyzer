@@ -38,7 +38,7 @@ namespace WordCommentsAnalyzer
         public bool WriteCodeHierarchyFile()
         {
             
-            var text = TreeNodeRecursive.TreeNodeToTextRecursive(treeViewHierarchy.Nodes[0]);
+            var text = TreeNodeRecursive.TreeNodeToTextTopDownRecursive(treeViewHierarchy.Nodes[0]);
             if (text== CodeHierarchyNodesText) //no changes
             {
                 return true;
@@ -136,7 +136,7 @@ namespace WordCommentsAnalyzer
 
         public void UpdateHierarchyNodeNumbers()
         {
-            var count = TreeNodeRecursive.GetTreeNodeTextsRecursive(treeViewHierarchy.Nodes[0]).Count();
+            var count = TreeNodeRecursive.GetTreeNodeTextsTopDownRecursive(treeViewHierarchy.Nodes[0]).Count();
             labelCodeHierarchy.Text = System.Text.RegularExpressions.Regex.Replace(labelCodeHierarchy.Text, @"\(.*\)", string.Format("({0})", count));
 
         }

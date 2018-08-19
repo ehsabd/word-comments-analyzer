@@ -53,6 +53,11 @@
             this.labelCodeHierarchy = new System.Windows.Forms.Label();
             this.buttonAddHierarchyNode = new System.Windows.Forms.Button();
             this.panelHierarchyFind = new System.Windows.Forms.Panel();
+            this.labelFindHierarchyIndex = new System.Windows.Forms.Label();
+            this.buttonFindHierarchyNext = new System.Windows.Forms.Button();
+            this.buttonFindHierarchyPrev = new System.Windows.Forms.Button();
+            this.labelHierarchyFind = new System.Windows.Forms.Label();
+            this.textHierarchyFind = new System.Windows.Forms.TextBox();
             this.splitterMiddleRight = new System.Windows.Forms.Splitter();
             this.panelSidebar = new System.Windows.Forms.Panel();
             this.panelSidebarBottom = new System.Windows.Forms.Panel();
@@ -92,6 +97,7 @@
             this.panelNodeTop.SuspendLayout();
             this.panelMiddle.SuspendLayout();
             this.panelMiddleToolbar.SuspendLayout();
+            this.panelHierarchyFind.SuspendLayout();
             this.panelSidebar.SuspendLayout();
             this.panelSidebarBottom.SuspendLayout();
             this.panelReferenceTextToolbar.SuspendLayout();
@@ -273,7 +279,7 @@
             this.buttonSortTreeAZ.Image = global::WordCommentsAnalyzer.Properties.Resources.libre_gui_sort_alpha_asc32;
             this.buttonSortTreeAZ.Location = new System.Drawing.Point(187, 0);
             this.buttonSortTreeAZ.Name = "buttonSortTreeAZ";
-            this.buttonSortTreeAZ.Size = new System.Drawing.Size(36, 36);
+            this.buttonSortTreeAZ.Size = new System.Drawing.Size(36, 42);
             this.buttonSortTreeAZ.TabIndex = 19;
             this.buttonSortTreeAZ.Tag = "Save hierarchy";
             this.buttonSortTreeAZ.UseVisualStyleBackColor = true;
@@ -285,7 +291,7 @@
             this.buttonSave.Image = global::WordCommentsAnalyzer.Properties.Resources.libre_gui_save_32;
             this.buttonSave.Location = new System.Drawing.Point(223, 0);
             this.buttonSave.Name = "buttonSave";
-            this.buttonSave.Size = new System.Drawing.Size(36, 36);
+            this.buttonSave.Size = new System.Drawing.Size(36, 42);
             this.buttonSave.TabIndex = 17;
             this.buttonSave.Tag = "Save hierarchy";
             this.buttonSave.UseVisualStyleBackColor = true;
@@ -297,7 +303,7 @@
             this.buttonDeleteHierarchyNode.Image = global::WordCommentsAnalyzer.Properties.Resources.libre_gui_trash_32;
             this.buttonDeleteHierarchyNode.Location = new System.Drawing.Point(259, 0);
             this.buttonDeleteHierarchyNode.Name = "buttonDeleteHierarchyNode";
-            this.buttonDeleteHierarchyNode.Size = new System.Drawing.Size(36, 36);
+            this.buttonDeleteHierarchyNode.Size = new System.Drawing.Size(36, 42);
             this.buttonDeleteHierarchyNode.TabIndex = 15;
             this.buttonDeleteHierarchyNode.Tag = "Delete node";
             this.buttonDeleteHierarchyNode.UseVisualStyleBackColor = true;
@@ -309,7 +315,7 @@
             this.buttonEditHierarchyNode.Image = global::WordCommentsAnalyzer.Properties.Resources.libre_gui_edit_32;
             this.buttonEditHierarchyNode.Location = new System.Drawing.Point(295, 0);
             this.buttonEditHierarchyNode.Name = "buttonEditHierarchyNode";
-            this.buttonEditHierarchyNode.Size = new System.Drawing.Size(36, 36);
+            this.buttonEditHierarchyNode.Size = new System.Drawing.Size(36, 42);
             this.buttonEditHierarchyNode.TabIndex = 18;
             this.buttonEditHierarchyNode.Tag = "Edit node";
             this.buttonEditHierarchyNode.UseVisualStyleBackColor = true;
@@ -330,7 +336,7 @@
             this.buttonAddHierarchyNode.Image = global::WordCommentsAnalyzer.Properties.Resources.libre_gui_add_32;
             this.buttonAddHierarchyNode.Location = new System.Drawing.Point(331, 0);
             this.buttonAddHierarchyNode.Name = "buttonAddHierarchyNode";
-            this.buttonAddHierarchyNode.Size = new System.Drawing.Size(36, 36);
+            this.buttonAddHierarchyNode.Size = new System.Drawing.Size(36, 42);
             this.buttonAddHierarchyNode.TabIndex = 14;
             this.buttonAddHierarchyNode.Tag = "Add node";
             this.buttonAddHierarchyNode.UseVisualStyleBackColor = true;
@@ -338,11 +344,62 @@
             // 
             // panelHierarchyFind
             // 
+            this.panelHierarchyFind.Controls.Add(this.labelFindHierarchyIndex);
+            this.panelHierarchyFind.Controls.Add(this.buttonFindHierarchyNext);
+            this.panelHierarchyFind.Controls.Add(this.buttonFindHierarchyPrev);
+            this.panelHierarchyFind.Controls.Add(this.labelHierarchyFind);
+            this.panelHierarchyFind.Controls.Add(this.textHierarchyFind);
             this.panelHierarchyFind.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panelHierarchyFind.Location = new System.Drawing.Point(0, 36);
+            this.panelHierarchyFind.Location = new System.Drawing.Point(0, 42);
             this.panelHierarchyFind.Name = "panelHierarchyFind";
-            this.panelHierarchyFind.Size = new System.Drawing.Size(367, 47);
+            this.panelHierarchyFind.Size = new System.Drawing.Size(367, 41);
             this.panelHierarchyFind.TabIndex = 20;
+            // 
+            // labelFindHierarchyIndex
+            // 
+            this.labelFindHierarchyIndex.AutoSize = true;
+            this.labelFindHierarchyIndex.Location = new System.Drawing.Point(155, 15);
+            this.labelFindHierarchyIndex.Name = "labelFindHierarchyIndex";
+            this.labelFindHierarchyIndex.Size = new System.Drawing.Size(0, 13);
+            this.labelFindHierarchyIndex.TabIndex = 11;
+            // 
+            // buttonFindHierarchyNext
+            // 
+            this.buttonFindHierarchyNext.Location = new System.Drawing.Point(259, 10);
+            this.buttonFindHierarchyNext.Name = "buttonFindHierarchyNext";
+            this.buttonFindHierarchyNext.Size = new System.Drawing.Size(75, 23);
+            this.buttonFindHierarchyNext.TabIndex = 10;
+            this.buttonFindHierarchyNext.Text = "Down";
+            this.buttonFindHierarchyNext.UseVisualStyleBackColor = true;
+            this.buttonFindHierarchyNext.Click += new System.EventHandler(this.buttonFindHierarchyNext_Click);
+            // 
+            // buttonFindHierarchyPrev
+            // 
+            this.buttonFindHierarchyPrev.Location = new System.Drawing.Point(184, 10);
+            this.buttonFindHierarchyPrev.Name = "buttonFindHierarchyPrev";
+            this.buttonFindHierarchyPrev.Size = new System.Drawing.Size(75, 23);
+            this.buttonFindHierarchyPrev.TabIndex = 9;
+            this.buttonFindHierarchyPrev.Text = "Up";
+            this.buttonFindHierarchyPrev.UseVisualStyleBackColor = true;
+            this.buttonFindHierarchyPrev.Click += new System.EventHandler(this.buttonFindHierarchyPrev_Click);
+            // 
+            // labelHierarchyFind
+            // 
+            this.labelHierarchyFind.AutoSize = true;
+            this.labelHierarchyFind.Location = new System.Drawing.Point(6, 17);
+            this.labelHierarchyFind.Name = "labelHierarchyFind";
+            this.labelHierarchyFind.Size = new System.Drawing.Size(31, 13);
+            this.labelHierarchyFind.TabIndex = 7;
+            this.labelHierarchyFind.Text = "Find:";
+            // 
+            // textHierarchyFind
+            // 
+            this.textHierarchyFind.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.textHierarchyFind.Location = new System.Drawing.Point(43, 12);
+            this.textHierarchyFind.Name = "textHierarchyFind";
+            this.textHierarchyFind.Size = new System.Drawing.Size(84, 21);
+            this.textHierarchyFind.TabIndex = 8;
+            this.textHierarchyFind.TextChanged += new System.EventHandler(this.textHierarchyFind_TextChanged);
             // 
             // splitterMiddleRight
             // 
@@ -699,6 +756,8 @@
             this.panelMiddle.ResumeLayout(false);
             this.panelMiddleToolbar.ResumeLayout(false);
             this.panelMiddleToolbar.PerformLayout();
+            this.panelHierarchyFind.ResumeLayout(false);
+            this.panelHierarchyFind.PerformLayout();
             this.panelSidebar.ResumeLayout(false);
             this.panelSidebarBottom.ResumeLayout(false);
             this.panelReferenceTextToolbar.ResumeLayout(false);
@@ -776,6 +835,11 @@
         private System.Windows.Forms.Panel panelHierarchyFind;
         private System.Windows.Forms.ContextMenuStrip hierarchyContextMenu;
         private System.Windows.Forms.ToolStripMenuItem menuItemMoveTo;
+        private System.Windows.Forms.Label labelHierarchyFind;
+        private System.Windows.Forms.TextBox textHierarchyFind;
+        private System.Windows.Forms.Label labelFindHierarchyIndex;
+        private System.Windows.Forms.Button buttonFindHierarchyNext;
+        private System.Windows.Forms.Button buttonFindHierarchyPrev;
     }
 }
 

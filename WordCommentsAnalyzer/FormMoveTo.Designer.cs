@@ -59,7 +59,6 @@
             this.treeViewMoveTo.Size = new System.Drawing.Size(222, 187);
             this.treeViewMoveTo.TabIndex = 2;
             this.treeViewMoveTo.DrawNode += new System.Windows.Forms.DrawTreeNodeEventHandler(this.treeViewMoveTo_DrawNode);
-            this.treeViewMoveTo.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeViewMoveTo_AfterSelect);
             // 
             // buttonMove
             // 
