@@ -17,6 +17,7 @@ namespace WordCommentsAnalyzer
             // We copy the dragged node when the left mouse button is used. We don't want to remove codes
             if (e.Button == MouseButtons.Left)
             {
+                //We use DataObject because we want the item to be draggable as text too (e.g., to be dragged and dropped into a Word document)
                 var d = new DataObject();
                 d.SetData(typeof(ListViewItem), e.Item);
                 var lvi = (ListViewItem)(e.Item);
@@ -38,9 +39,14 @@ namespace WordCommentsAnalyzer
         {
             // Move the dragged node when the left mouse button is used. 
             // We facilitate move between hierarchy code nodes.
-            if (e.Button == MouseButtons.Left)
+              if (e.Button == MouseButtons.Left)
             {
-                DoDragDrop(e.Item, DragDropEffects.Move);
+                //We use DataObject because we want the item to be draggable as text too (e.g., to be dragged and dropped into a Word document)
+                var d = new DataObject();
+                d.SetData(typeof(TreeNode), e.Item);
+                var n = (TreeNode)(e.Item);
+                d.SetData(n.Text);
+                DoDragDrop(d, DragDropEffects.Move);
             }
         }
 

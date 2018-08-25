@@ -76,9 +76,22 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="ArabicPersianTextHelper.cs" />
+    <Compile Include="Credits.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Credits.Designer.cs">
+      <DependentUpon>Credits.cs</DependentUpon>
+    </Compile>
+    <Compile Include="VisualizeForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="VisualizeForm.Designer.cs">
+      <DependentUpon>VisualizeForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="CodeHierarchyManager.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="CodeListHelper.cs" />
     <Compile Include="DragDropEvents.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -100,6 +113,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TreeNodeRecursive.cs" />
     <Compile Include="WordCommentsHelper.cs" />
+    <EmbeddedResource Include="Credits.resx">
+      <DependentUpon>Credits.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VisualizeForm.resx">
+      <DependentUpon>VisualizeForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FormMoveTo.resx">
       <DependentUpon>FormMoveTo.cs</DependentUpon>
     </EmbeddedResource>
@@ -117,6 +136,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="ClassDiagram1.cd" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -154,9 +174,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\libre-gui-view-one-column-modified-24.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Icon1.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Image1.png" />

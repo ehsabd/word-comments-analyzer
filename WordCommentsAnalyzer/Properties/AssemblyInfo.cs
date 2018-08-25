@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("WordCommentsAnalyzer")]
-[assembly: AssemblyCopyright("")]
+[assembly: AssemblyCopyright("License: GNU General Public License 3.0. https://opensource.org/licenses/GPL-3.0")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

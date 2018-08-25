@@ -13,7 +13,6 @@ namespace WordCommentsAnalyzer
     public partial class FormMoveTo : Form
     {
         private string nodeToMoveName { get; set; }
-        public string SelectedNodeName { get; set; }
         public FormMoveTo(string text, string nodeToMoveName)
         {
             InitializeComponent();
@@ -94,20 +93,6 @@ namespace WordCommentsAnalyzer
             if ((e.State & TreeNodeStates.Selected) != 0)
             {
                 e.DrawDefault = true;
-                return; //TODO: remove the code below
-                // Draw the background of the selected node. The NodeBounds
-                // method makes the highlight rectangle large enough to
-                // include the text of a node tag, if one is present.
-                g.FillRectangle(Brushes.Green,e.Bounds );//NodeBounds(e.Node));
-
-                // Retrieve the node font. If the node font has not been set,
-                // use the TreeView font.
-                Font nodeFont = e.Node.NodeFont;
-                if (nodeFont == null) nodeFont = ((TreeView)sender).Font;
-
-                // Draw the node text.
-                g.DrawString(e.Node.Text, nodeFont, Brushes.White,
-                    Rectangle.Inflate(e.Bounds, 0, 0));
             }
 
             else
@@ -146,6 +131,5 @@ namespace WordCommentsAnalyzer
             }
             
         }
-
     }
 }

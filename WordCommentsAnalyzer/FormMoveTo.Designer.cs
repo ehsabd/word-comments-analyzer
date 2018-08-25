@@ -47,13 +47,14 @@
             this.labelFilterText.AutoSize = true;
             this.labelFilterText.Location = new System.Drawing.Point(12, 20);
             this.labelFilterText.Name = "labelFilterText";
-            this.labelFilterText.Size = new System.Drawing.Size(58, 13);
+            this.labelFilterText.Size = new System.Drawing.Size(92, 13);
             this.labelFilterText.TabIndex = 1;
-            this.labelFilterText.Text = "Filter text:";
+            this.labelFilterText.Text = "Search hierarchy:";
             // 
             // treeViewMoveTo
             // 
             this.treeViewMoveTo.DrawMode = System.Windows.Forms.TreeViewDrawMode.OwnerDrawText;
+            this.treeViewMoveTo.HideSelection = false;
             this.treeViewMoveTo.Location = new System.Drawing.Point(12, 62);
             this.treeViewMoveTo.Name = "treeViewMoveTo";
             this.treeViewMoveTo.Size = new System.Drawing.Size(222, 187);
@@ -93,7 +94,7 @@
 
         private System.Windows.Forms.TextBox textFilter;
         private System.Windows.Forms.Label labelFilterText;
-        private System.Windows.Forms.TreeView treeViewMoveTo;
+        public System.Windows.Forms.TreeView treeViewMoveTo;
         private System.Windows.Forms.Button buttonMove;
     }
 }

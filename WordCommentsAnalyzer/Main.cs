@@ -39,9 +39,7 @@ namespace WordCommentsAnalyzer
 
         private const string NewHierarchyNodeName = "New Node";
 
-        private System.Drawing.Color highightBackColor = System.Drawing.Color.FromArgb(255, 235, 255, 150);
-        private System.Drawing.Color highightForeColor = System.Drawing.Color.Black;
-
+       
         private string filteredBy = "";
         private string CodeHierarchyNodesText = "";
         private static string WorkingDirectory;
@@ -94,12 +92,7 @@ namespace WordCommentsAnalyzer
             textWorkingDir.Text = WorkingDirectory ?? "";
             PrepareTooltips(this);
         }
-        private void SetListViewItemColor(ListViewItem lvt, bool highlight)
-        {
-            lvt.BackColor = highlight ? highightBackColor : System.Drawing.Color.White;
-            lvt.ForeColor = highlight ? highightForeColor : System.Drawing.Color.Black;
-           
-        }
+        
 
         private void UpdateCodeBackground(string code)
         {
@@ -107,7 +100,7 @@ namespace WordCommentsAnalyzer
             var codeInListview = listViewCodes.Items.Find(code, false);
             if (codeInListview.Count() > 0)
             {
-                SetListViewItemColor(codeInListview[0], IsCodeInHierarchy(code));
+                CodeListHelper.SetListViewItemColor(codeInListview[0], IsCodeInHierarchy(code));
             }
         }
 
@@ -150,28 +143,7 @@ namespace WordCommentsAnalyzer
 
 
 
-
-        private void UpdateCodesListView()
-        {
-            listViewCodes.Items.Clear();
-            listViewCodes.BeginUpdate();
-            var codesInHierarchy = TreeNodeRecursive.GetTreeNodeTextsTopDownRecursive(treeViewHierarchy.Nodes[0]);
-
-            foreach (var cs in Models.FilteredCodeStatList)
-            {
-                var code = cs.Code.Value;
-                var item = new ListViewItem(new string[] { code, cs.Frequency.ToString() });
-                item.Name = code;
-                SetListViewItemColor(item, 
-                    codesInHierarchy.Contains(code) //NOTE that codesInHierarchy is built locally in this method
-                    );
-                listViewCodes.Items.Add(item);
-            }
-
-            listViewCodes.EndUpdate();
-
-            labelNumberOfNodes.Text = string.Format("{0} Codes", listViewCodes.Items.Count);
-        }
+       
         private void textFilter_TextChanged(object sender, EventArgs e)
         {
             if (!bwFilterCodes.IsBusy)
@@ -311,12 +283,8 @@ namespace WordCommentsAnalyzer
 
             var dataExtractIds = codeObjects.SelectMany(c => c.DataExtractsIds).Distinct();
             labelRef.Text = Regex.Replace(labelRef.Text, @"\(.*\)", string.Format("({0})", dataExtractIds.Count()));
-
-            var query = from id in dataExtractIds
-                        join d in Models.DataExtracts on id equals d.Id
-                        select d;
-
-            UpdateRefListView(query.ToList());
+            
+            UpdateRefListView(Models.DataExtractsQuery(dataExtractIds));
 
         }
 
@@ -409,7 +377,7 @@ namespace WordCommentsAnalyzer
             }
         }
 
-        private void UpdateRefListView(List<Models.DataExtract> dataExtracts)
+        private void UpdateRefListView(IEnumerable<Models.DataExtract> dataExtracts)
         {
             listViewRef.BeginUpdate();
             listViewRef.Items.Clear();
@@ -458,7 +426,6 @@ namespace WordCommentsAnalyzer
                 item.SubItems.Add(codes);
                 item.SubItems.Add(fileName);
             }
-            item.Name = dxt.Id;
             return item;
         }
 
@@ -501,6 +468,7 @@ namespace WordCommentsAnalyzer
         private void bwAnalyze_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             panelMiddle.Enabled = true;
+            buttonVisualize.Enabled = true;
             filteredBy = textFilter.Text;
             /*
             NOTE that the codelist items should be cleared here before ReadCodeHierarchy
@@ -567,8 +535,9 @@ namespace WordCommentsAnalyzer
                 bwFilterCodes.RunWorkerAsync();
             }
             else {
-                UpdateCodesListView();
-
+                var codesInHierarchy = TreeNodeRecursive.GetTreeNodeTextsTopDownRecursive(treeViewHierarchy.Nodes[0]);
+                CodeListHelper.UpdateCodesListView(ref listViewCodes, Models.FilteredCodeStatList,codesInHierarchy);
+                labelNumberOfNodes.Text = string.Format("{0} Codes", listViewCodes.Items.Count);
             }
         }
 
@@ -614,6 +583,12 @@ namespace WordCommentsAnalyzer
                 {
                     menuItemMoveTo.Tag = node.Name;
                     menuItemMoveTo.Text = string.Format("Move {0}", node.Text);
+                    deleteToolStripMenuItem.Tag = node;
+                    deleteToolStripMenuItem.Text = string.Format("Delete {0}", node.Text);
+                    editToolStripMenuItem.Tag = node;
+                    editToolStripMenuItem.Text = string.Format("Edit {0}", node.Text);
+                    addNodeToToolStripMenuItem.Tag = node;
+                    addNodeToToolStripMenuItem.Text = string.Format("Add node to {0}", node.Text);
                     hierarchyContextMenu.Show(treeViewHierarchy, p);
                 }
             }
@@ -645,12 +620,13 @@ namespace WordCommentsAnalyzer
                 moveTo.Left = (pt.X + moveTo.Width) > screenWidth-50 ? screenWidth - moveTo.Width-50 : pt.X;
                 moveTo.Top = (pt.Y + moveTo.Height) > screenHeight-50 ? screenHeight - moveTo.Height-50 : pt.Y;
                 if (moveTo.ShowDialog(this) == DialogResult.OK) {
-                if (moveTo.SelectedNodeName == null)
+                var selectedNodeName = moveTo.treeViewMoveTo.SelectedNode?.Name;
+                if (selectedNodeName == null)
                 {
                     MessageBox.Show("You have not selected any nodes to move this node to", "No target node selected", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
-                var targetNode = treeViewHierarchy.Nodes.Find(moveTo.SelectedNodeName, true)[0];
+                var targetNode = treeViewHierarchy.Nodes.Find(selectedNodeName, true)[0];
                  
                     MoveHierarchyNode(move, targetNode);
                 };
@@ -720,6 +696,41 @@ namespace WordCommentsAnalyzer
                 foundHierarchyIndex++;
                 ShowCurrentFound();
             }
+        }
+
+        private void buttonVisualize_Click(object sender, EventArgs e)
+        {
+            (new VisualizeForm()).Show();
+        }
+
+        private void panelTop_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+       
+
+        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            treeViewHierarchy.SelectedNode = (TreeNode)deleteToolStripMenuItem.Tag;
+            buttonDeleteHierarchyNode_Click(new object(), new EventArgs());
+        }
+
+        private void addNodeToToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            treeViewHierarchy.SelectedNode = (TreeNode)addNodeToToolStripMenuItem.Tag;
+            buttonAddHierarchyNode_Click(new object(), new EventArgs());
+        }
+
+        private void editToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            treeViewHierarchy.SelectedNode = (TreeNode)editToolStripMenuItem.Tag;
+            buttonEditHierarchyNode_Click(new object(), new EventArgs());
+        }
+
+        private void linkCredits_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            (new Credits()).ShowDialog();
         }
     }
 }

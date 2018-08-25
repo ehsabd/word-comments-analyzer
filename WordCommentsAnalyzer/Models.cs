@@ -11,14 +11,13 @@ namespace WordCommentsAnalyzer
     {
         public static void ClearData()
         {
-            CodesDictionary.Clear(); 
-            DataExtracts.Clear();
+            CodesDictionary.Clear();
+            DataExtractsDictionary.Clear();
             FileInfosDictionary.Clear();
         }
 
         public class DataExtract
         {
-            public string Id { get; set; }
             /// <summary>
             /// The key that relates this dataextract to a FileInfo object in FileInfosDictionary
             /// </summary>
@@ -28,8 +27,10 @@ namespace WordCommentsAnalyzer
             /// Note that the codes are stored both in the CodesDictionary and here because we need
             /// fast access to reference text codes
             /// </summary>
-            public List<string> Codes { get; set; }
-            public List<string> ImagePartIds { get; set; }
+            public string[] Codes { get; set; }
+            public string[] ImagePartIds { get; set; }
+            public string[] WcaTextIds { get; set; }
+            public string[] WcaParagraphIds { get; set; }
             public System.IO.FileInfo FileInfo { get
                 {
                     return FileInfosDictionary[FileInfoKey];
@@ -37,15 +38,23 @@ namespace WordCommentsAnalyzer
             }
             public List<System.Drawing.Image> GetImages()
             {
-                using (var fs = System.IO.File.Open(FileInfo.FullName, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite))
-                using (var wordDoc = DocumentFormat.OpenXml.Packaging.WordprocessingDocument.Open(fs, false))
+                System.IO.FileStream fs = null;
+                try
                 {
-                    var main = wordDoc.MainDocumentPart;
-                    var images = ImagePartIds.Select(id=>System.Drawing.Image.FromStream(main.GetPartById(id).GetStream())).ToList();
-                    return images;
+                    fs = System.IO.File.Open(FileInfo.FullName, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite);
+                    using (var wordDoc = DocumentFormat.OpenXml.Packaging.WordprocessingDocument.Open(fs, false))
+                    {
+                        var main = wordDoc.MainDocumentPart;
+                        var images = ImagePartIds.Select(id => System.Drawing.Image.FromStream(main.GetPartById(id).GetStream())).ToList();
+                        return images;
+                    }
+
+                }
+                finally
+                {
+                    if (fs != null) fs.Dispose();
                 }
             }
-
         }
 
         public class Code
@@ -59,7 +68,7 @@ namespace WordCommentsAnalyzer
             {
                 get
                 {
-                    return DataExtractsQuery.ToList();
+                    return DataExtractsQuery(DataExtractsIds).ToList();
                 }
             }
 
@@ -71,16 +80,7 @@ namespace WordCommentsAnalyzer
                 }
             }
 
-            private IEnumerable<DataExtract> DataExtractsQuery
-            {
-                get
-                {
-                    var q = from id in DataExtractsIds
-                            join d in Models.DataExtracts on id equals d.Id
-                            select d;
-                    return q;
-                }
-            }
+            
         }
 
 
@@ -88,22 +88,26 @@ namespace WordCommentsAnalyzer
         {
             public Code Code { get; set; }
             public int Frequency { get; set; }
-            public bool IsSelected { get; set; }
+            public bool IsInHierarchy { get; set; }
         }
 
-        public static List<DataExtract> DataExtracts = new List<DataExtract>();
-        public static Dictionary<string, Code> CodesDictionary
-            = new Dictionary<string, Code>();
+        /// <summary>
+        /// DataExtracts are stored in a dictionary for faster retrieval
+        /// The keys are DataExtractIds
+        /// </summary>
+        public static Dictionary<string, DataExtract> DataExtractsDictionary = new Dictionary<string, DataExtract>();
+        public static Dictionary<string, Code> CodesDictionary = new Dictionary<string, Code>(StringComparer.OrdinalIgnoreCase);
+            
         /// <summary>
         /// This dictionary is used to store each FileInfo for use in DataExtract to get FileName and also
-        /// images, the key is base64 converted fullname
+        /// images, see how the key is produced in AddFileInfo method.
         /// </summary>
         public static Dictionary<string, System.IO.FileInfo> FileInfosDictionary 
             = new Dictionary<string, System.IO.FileInfo>();
 
         public static string AddFileInfo(System.IO.FileInfo fi)
         {
-            var key = fi.FullName.UTF8ToBase64Ext();
+            var key = fi.Name.UTF8ToBase64Ext();
             FileInfosDictionary.Add(key, fi);
             return key;
         }
@@ -195,16 +199,22 @@ namespace WordCommentsAnalyzer
             }
             var t1 = sw.ElapsedMilliseconds;
             System.Diagnostics.Debug.WriteLine("Time of replacing the codes in CodesDictionary (ms):" + (t1 - t0).ToString());
-            foreach (var dxt in DataExtracts)
+            foreach (var pair in DataExtractsDictionary)
             {
+                var dxt = pair.Value;
                 dxt.Codes = (from code in dxt.Codes
                             let a = regexKaf_Keheh.Replace(code, replaceKaf_Keheh)
                             let b = regexYeh_FarsiYeh.Replace(a, replaceYeh_Farsi)
-                            select b).ToList();
+                            select b).ToArray();
             }
             var t2 = sw.ElapsedMilliseconds;
             System.Diagnostics.Debug.WriteLine("Time of replacing the codes in DataExtracts (ms):" + (t2 - t1).ToString());
 
+        }
+        public static IEnumerable<DataExtract> DataExtractsQuery(IEnumerable<string> dataExtractIds)
+        {
+            var q = dataExtractIds.Select(id => DataExtractsDictionary[id]);
+            return q;
         }
     }
 }

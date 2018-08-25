@@ -11,6 +11,7 @@ namespace WordCommentsAnalyzer
 {
     class WordCommentsHelper
     {
+
         public static IEnumerable<Comment> GetWordDocumentComments(MainDocumentPart mainPart)
         {
             WordprocessingCommentsPart commentsPart = mainPart.WordprocessingCommentsPart;
@@ -26,7 +27,7 @@ namespace WordCommentsAnalyzer
 
         }
 
-        public static List<string> ExtractCodesFromComment(Comment comment)
+        public static string[] ExtractCodesFromComment(Comment comment)
         {
             string replaceSpacePattern = "[" + "\u200C" //Zero Width Non-Joiner
                 + "]";
@@ -43,7 +44,7 @@ namespace WordCommentsAnalyzer
                     .Trim(trimChars)
                     )
                 .Where(s => !string.IsNullOrWhiteSpace(s))
-                .ToList();
+                .ToArray();
         }
 
         /*The methods GetElementsInnerText, GetCommentRangeElements, and IsMatchingCommentEnd are adapted from
@@ -94,6 +95,13 @@ namespace WordCommentsAnalyzer
 
         }
 
+        /// <summary>
+        /// This method searchs for CommentRangeElements until it finds  the CommentRangeEnd element with the same id as commentStart or reach an Element that has no parent or sibling
+        /// The search starts with siblings of CommentRangeStart, if the method cannot find the CommentRangeEnd it will search the sibling of the parent element and so on
+        /// </summary>
+        /// <param name="commentStart"></param>
+        /// <param name="searchStartElement"></param>
+        /// <returns>The output of this function consists of an IEnumerable of either Paragraph or Run. And when it returns Runs, the runs are in the same node level (Siblings) in the XML document</returns>
         private static IEnumerable<OpenXmlElement> CommentRangeElementsRecursive(CommentRangeStart commentStart, OpenXmlElement searchStartElement = null)
         {
             List<OpenXmlElement> commentedNodes = new List<OpenXmlElement>();
@@ -139,9 +147,15 @@ namespace WordCommentsAnalyzer
                         }
                     }
                 }
-
-
-                commentedNodes.Add(element);
+                
+                /*NOTE that there may be other CommentRangeStart and CommentRangeEnd elements in the
+                siblings of a CommentRangeStart or its parents because of overlapping or nested comments. 
+                So we only add nodes that are either pargraphs or runs. And because they are always siblings, their types will be identical*/
+                if (element.GetType() == typeof(Paragraph) || element.GetType() == typeof(Run))
+                {
+                    commentedNodes.Add(element);
+                }
+                
                 if (commentEndFound)
                 {
                     break;

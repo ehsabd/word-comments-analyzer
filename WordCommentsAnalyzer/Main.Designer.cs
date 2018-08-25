@@ -37,8 +37,6 @@
             this.panelParent = new System.Windows.Forms.Panel();
             this.panelNode = new System.Windows.Forms.Panel();
             this.listViewCodes = new System.Windows.Forms.ListView();
-            this.columnCode = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnFreq = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.panelNodeTop = new System.Windows.Forms.Panel();
             this.labelFilter = new System.Windows.Forms.Label();
             this.textFilter = new System.Windows.Forms.TextBox();
@@ -85,6 +83,7 @@
             this.textCulture = new System.Windows.Forms.TextBox();
             this.panelTop = new System.Windows.Forms.Panel();
             this.panelWorkingDirBrowseAnalyze = new System.Windows.Forms.Panel();
+            this.buttonVisualize = new System.Windows.Forms.Button();
             this.radioMiniCodelist = new System.Windows.Forms.RadioButton();
             this.labelView = new System.Windows.Forms.Label();
             this.radioThreePanels = new System.Windows.Forms.RadioButton();
@@ -92,6 +91,10 @@
             this.bwAnalyze = new System.ComponentModel.BackgroundWorker();
             this.hierarchyContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.menuItemMoveTo = new System.Windows.Forms.ToolStripMenuItem();
+            this.addNodeToToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.linkCredits = new System.Windows.Forms.LinkLabel();
             this.panelParent.SuspendLayout();
             this.panelNode.SuspendLayout();
             this.panelNodeTop.SuspendLayout();
@@ -160,11 +163,7 @@
             // 
             // listViewCodes
             // 
-            this.listViewCodes.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnCode,
-            this.columnFreq});
             this.listViewCodes.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.listViewCodes.FullRowSelect = true;
             this.listViewCodes.Location = new System.Drawing.Point(0, 0);
             this.listViewCodes.Name = "listViewCodes";
             this.listViewCodes.Size = new System.Drawing.Size(313, 479);
@@ -173,16 +172,6 @@
             this.listViewCodes.View = System.Windows.Forms.View.Details;
             this.listViewCodes.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.listViewCodes_ItemDrag);
             this.listViewCodes.SelectedIndexChanged += new System.EventHandler(this.listViewCodes_SelectedIndexChanged);
-            // 
-            // columnCode
-            // 
-            this.columnCode.Text = "Code";
-            this.columnCode.Width = 200;
-            // 
-            // columnFreq
-            // 
-            this.columnFreq.Text = "Frequency";
-            this.columnFreq.Width = 100;
             // 
             // panelNodeTop
             // 
@@ -281,7 +270,7 @@
             this.buttonSortTreeAZ.Name = "buttonSortTreeAZ";
             this.buttonSortTreeAZ.Size = new System.Drawing.Size(36, 42);
             this.buttonSortTreeAZ.TabIndex = 19;
-            this.buttonSortTreeAZ.Tag = "Save hierarchy";
+            this.buttonSortTreeAZ.Tag = "Sort hierarchy";
             this.buttonSortTreeAZ.UseVisualStyleBackColor = true;
             this.buttonSortTreeAZ.Click += new System.EventHandler(this.buttonSortTreeAZ_Click);
             // 
@@ -636,6 +625,7 @@
             // panelTop
             // 
             this.panelTop.BackColor = System.Drawing.Color.White;
+            this.panelTop.Controls.Add(this.linkCredits);
             this.panelTop.Controls.Add(this.panelWorkingDirBrowseAnalyze);
             this.panelTop.Controls.Add(this.radioMiniCodelist);
             this.panelTop.Controls.Add(this.labelView);
@@ -648,18 +638,34 @@
             this.panelTop.Name = "panelTop";
             this.panelTop.Size = new System.Drawing.Size(1008, 107);
             this.panelTop.TabIndex = 8;
+            this.panelTop.Paint += new System.Windows.Forms.PaintEventHandler(this.panelTop_Paint);
             this.panelTop.Resize += new System.EventHandler(this.panel1_Resize);
             // 
             // panelWorkingDirBrowseAnalyze
             // 
+            this.panelWorkingDirBrowseAnalyze.Controls.Add(this.buttonVisualize);
             this.panelWorkingDirBrowseAnalyze.Controls.Add(this.labelWD);
             this.panelWorkingDirBrowseAnalyze.Controls.Add(this.textWorkingDir);
             this.panelWorkingDirBrowseAnalyze.Controls.Add(this.buttonBrowse);
             this.panelWorkingDirBrowseAnalyze.Controls.Add(this.buttonAnalyze);
             this.panelWorkingDirBrowseAnalyze.Location = new System.Drawing.Point(0, 40);
             this.panelWorkingDirBrowseAnalyze.Name = "panelWorkingDirBrowseAnalyze";
-            this.panelWorkingDirBrowseAnalyze.Size = new System.Drawing.Size(697, 35);
+            this.panelWorkingDirBrowseAnalyze.Size = new System.Drawing.Size(822, 35);
             this.panelWorkingDirBrowseAnalyze.TabIndex = 11;
+            // 
+            // buttonVisualize
+            // 
+            this.buttonVisualize.Enabled = false;
+            this.buttonVisualize.Image = ((System.Drawing.Image)(resources.GetObject("buttonVisualize.Image")));
+            this.buttonVisualize.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.buttonVisualize.Location = new System.Drawing.Point(666, 0);
+            this.buttonVisualize.Name = "buttonVisualize";
+            this.buttonVisualize.Size = new System.Drawing.Size(91, 36);
+            this.buttonVisualize.TabIndex = 5;
+            this.buttonVisualize.Text = "Visualize";
+            this.buttonVisualize.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.buttonVisualize.UseVisualStyleBackColor = true;
+            this.buttonVisualize.Click += new System.EventHandler(this.buttonVisualize_Click);
             // 
             // radioMiniCodelist
             // 
@@ -722,18 +728,53 @@
             // hierarchyContextMenu
             // 
             this.hierarchyContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.menuItemMoveTo});
+            this.menuItemMoveTo,
+            this.addNodeToToolStripMenuItem,
+            this.editToolStripMenuItem,
+            this.deleteToolStripMenuItem});
             this.hierarchyContextMenu.Name = "codehierarchyContextMenu";
             this.hierarchyContextMenu.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
-            this.hierarchyContextMenu.Size = new System.Drawing.Size(122, 26);
+            this.hierarchyContextMenu.Size = new System.Drawing.Size(141, 92);
             // 
             // menuItemMoveTo
             // 
             this.menuItemMoveTo.Name = "menuItemMoveTo";
-            this.menuItemMoveTo.Size = new System.Drawing.Size(121, 22);
-            this.menuItemMoveTo.Text = "Move To";
+            this.menuItemMoveTo.Size = new System.Drawing.Size(140, 22);
+            this.menuItemMoveTo.Text = "Move to";
             this.menuItemMoveTo.Click += new System.EventHandler(this.menuItemMoveTo_Click);
             this.menuItemMoveTo.MouseUp += new System.Windows.Forms.MouseEventHandler(this.menuItemMoveTo_MouseUp);
+            // 
+            // addNodeToToolStripMenuItem
+            // 
+            this.addNodeToToolStripMenuItem.Name = "addNodeToToolStripMenuItem";
+            this.addNodeToToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.addNodeToToolStripMenuItem.Text = "Add node to";
+            this.addNodeToToolStripMenuItem.Click += new System.EventHandler(this.addNodeToToolStripMenuItem_Click);
+            // 
+            // editToolStripMenuItem
+            // 
+            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
+            this.editToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.editToolStripMenuItem.Text = "Edit";
+            this.editToolStripMenuItem.Click += new System.EventHandler(this.editToolStripMenuItem_Click);
+            // 
+            // deleteToolStripMenuItem
+            // 
+            this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(140, 22);
+            this.deleteToolStripMenuItem.Text = "Delete";
+            this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
+            // 
+            // linkCredits
+            // 
+            this.linkCredits.AutoSize = true;
+            this.linkCredits.Location = new System.Drawing.Point(943, 9);
+            this.linkCredits.Name = "linkCredits";
+            this.linkCredits.Size = new System.Drawing.Size(41, 13);
+            this.linkCredits.TabIndex = 12;
+            this.linkCredits.TabStop = true;
+            this.linkCredits.Text = "Credits";
+            this.linkCredits.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkCredits_LinkClicked);
             // 
             // Main
             // 
@@ -805,8 +846,6 @@
         private System.Windows.Forms.Button buttonAddHierarchyNode;
         private System.Windows.Forms.Button buttonDeleteHierarchyNode;
         private System.Windows.Forms.ListView listViewCodes;
-        private System.Windows.Forms.ColumnHeader columnCode;
-        private System.Windows.Forms.ColumnHeader columnFreq;
         private System.Windows.Forms.ListView listViewRef;
         private System.Windows.Forms.ColumnHeader columnTextorCodes;
         private System.Windows.Forms.ColumnHeader columnCodesorFile;
@@ -840,6 +879,11 @@
         private System.Windows.Forms.Label labelFindHierarchyIndex;
         private System.Windows.Forms.Button buttonFindHierarchyNext;
         private System.Windows.Forms.Button buttonFindHierarchyPrev;
+        private System.Windows.Forms.Button buttonVisualize;
+        private System.Windows.Forms.ToolStripMenuItem addNodeToToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
+        private System.Windows.Forms.LinkLabel linkCredits;
     }
 }
 

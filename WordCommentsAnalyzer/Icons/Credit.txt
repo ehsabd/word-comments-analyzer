@@ -1,2 +1,2 @@
-All Icons are from icons from https://github.com/DiemenDesign/LibreICONS: (MIT License, https://opensource.org/licenses/MIT)
-When an icon has been modified the file name includes 'modified' phrase
+All Icons are from https://github.com/DiemenDesign/LibreICONS: (MIT License, https://opensource.org/licenses/MIT)
+When an icon has been modified the file name includes 'modified' phrase (see /WordCommentsAnalyzer/Icons folder in the source code)
