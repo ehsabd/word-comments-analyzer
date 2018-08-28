@@ -32,7 +32,6 @@ namespace WordCommentsAnalyzer
 
 
         /*Reg key and value names*/
-        private const string app_reg_key = @"HKEY_LOCAL_MACHINE\SOFTWARE\ehsabd_WordCommentsAnalyzer";
         private const string working_dir_value_name = "wd";
 
         private const string CodeHierarchyFileName = "codehierarchy.txt";
@@ -87,7 +86,6 @@ namespace WordCommentsAnalyzer
 
             RegistryKey key = Application.UserAppDataRegistry;
 
-            //var path = (string)Registry.GetValue(app_reg_key, working_dir_value_name,null);
             WorkingDirectory = (string)key.GetValue(working_dir_value_name);
             textWorkingDir.Text = WorkingDirectory ?? "";
             PrepareTooltips(this);
