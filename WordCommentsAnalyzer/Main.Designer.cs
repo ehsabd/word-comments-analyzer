@@ -35,9 +35,9 @@
             this.labelNumberOfNodes = new System.Windows.Forms.Label();
             this.bwFilterCodes = new System.ComponentModel.BackgroundWorker();
             this.panelParent = new System.Windows.Forms.Panel();
-            this.panelNode = new System.Windows.Forms.Panel();
+            this.panelCodes = new System.Windows.Forms.Panel();
             this.listViewCodes = new System.Windows.Forms.ListView();
-            this.panelNodeTop = new System.Windows.Forms.Panel();
+            this.panelCodeTop = new System.Windows.Forms.Panel();
             this.labelFilter = new System.Windows.Forms.Label();
             this.textFilter = new System.Windows.Forms.TextBox();
             this.splitterLeftMiddle = new System.Windows.Forms.Splitter();
@@ -82,6 +82,7 @@
             this.labelCulture = new System.Windows.Forms.Label();
             this.textCulture = new System.Windows.Forms.TextBox();
             this.panelTop = new System.Windows.Forms.Panel();
+            this.linkCredits = new System.Windows.Forms.LinkLabel();
             this.panelWorkingDirBrowseAnalyze = new System.Windows.Forms.Panel();
             this.buttonVisualize = new System.Windows.Forms.Button();
             this.radioMiniCodelist = new System.Windows.Forms.RadioButton();
@@ -94,10 +95,9 @@
             this.addNodeToToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.linkCredits = new System.Windows.Forms.LinkLabel();
             this.panelParent.SuspendLayout();
-            this.panelNode.SuspendLayout();
-            this.panelNodeTop.SuspendLayout();
+            this.panelCodes.SuspendLayout();
+            this.panelCodeTop.SuspendLayout();
             this.panelMiddle.SuspendLayout();
             this.panelMiddleToolbar.SuspendLayout();
             this.panelHierarchyFind.SuspendLayout();
@@ -120,7 +120,7 @@
             this.textLog.Multiline = true;
             this.textLog.Name = "textLog";
             this.textLog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textLog.Size = new System.Drawing.Size(1008, 81);
+            this.textLog.Size = new System.Drawing.Size(964, 81);
             this.textLog.TabIndex = 7;
             // 
             // labelNumberOfNodes
@@ -140,8 +140,8 @@
             // 
             // panelParent
             // 
-            this.panelParent.Controls.Add(this.panelNode);
-            this.panelParent.Controls.Add(this.panelNodeTop);
+            this.panelParent.Controls.Add(this.panelCodes);
+            this.panelParent.Controls.Add(this.panelCodeTop);
             this.panelParent.Controls.Add(this.splitterLeftMiddle);
             this.panelParent.Controls.Add(this.panelMiddle);
             this.panelParent.Controls.Add(this.splitterMiddleRight);
@@ -149,41 +149,41 @@
             this.panelParent.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelParent.Location = new System.Drawing.Point(0, 110);
             this.panelParent.Name = "panelParent";
-            this.panelParent.Size = new System.Drawing.Size(1008, 538);
+            this.panelParent.Size = new System.Drawing.Size(964, 538);
             this.panelParent.TabIndex = 16;
             // 
-            // panelNode
+            // panelCodes
             // 
-            this.panelNode.Controls.Add(this.listViewCodes);
-            this.panelNode.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelNode.Location = new System.Drawing.Point(0, 59);
-            this.panelNode.Name = "panelNode";
-            this.panelNode.Size = new System.Drawing.Size(313, 479);
-            this.panelNode.TabIndex = 7;
+            this.panelCodes.Controls.Add(this.listViewCodes);
+            this.panelCodes.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelCodes.Location = new System.Drawing.Point(0, 59);
+            this.panelCodes.Name = "panelCodes";
+            this.panelCodes.Size = new System.Drawing.Size(269, 479);
+            this.panelCodes.TabIndex = 7;
             // 
             // listViewCodes
             // 
             this.listViewCodes.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listViewCodes.Location = new System.Drawing.Point(0, 0);
             this.listViewCodes.Name = "listViewCodes";
-            this.listViewCodes.Size = new System.Drawing.Size(313, 479);
+            this.listViewCodes.Size = new System.Drawing.Size(269, 479);
             this.listViewCodes.TabIndex = 17;
             this.listViewCodes.UseCompatibleStateImageBehavior = false;
             this.listViewCodes.View = System.Windows.Forms.View.Details;
             this.listViewCodes.ItemDrag += new System.Windows.Forms.ItemDragEventHandler(this.listViewCodes_ItemDrag);
             this.listViewCodes.SelectedIndexChanged += new System.EventHandler(this.listViewCodes_SelectedIndexChanged);
             // 
-            // panelNodeTop
+            // panelCodeTop
             // 
-            this.panelNodeTop.Controls.Add(this.labelNumberOfNodes);
-            this.panelNodeTop.Controls.Add(this.labelFilter);
-            this.panelNodeTop.Controls.Add(this.textFilter);
-            this.panelNodeTop.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panelNodeTop.Location = new System.Drawing.Point(0, 0);
-            this.panelNodeTop.Margin = new System.Windows.Forms.Padding(5);
-            this.panelNodeTop.Name = "panelNodeTop";
-            this.panelNodeTop.Size = new System.Drawing.Size(313, 59);
-            this.panelNodeTop.TabIndex = 10;
+            this.panelCodeTop.Controls.Add(this.labelNumberOfNodes);
+            this.panelCodeTop.Controls.Add(this.labelFilter);
+            this.panelCodeTop.Controls.Add(this.textFilter);
+            this.panelCodeTop.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelCodeTop.Location = new System.Drawing.Point(0, 0);
+            this.panelCodeTop.Margin = new System.Windows.Forms.Padding(5);
+            this.panelCodeTop.Name = "panelCodeTop";
+            this.panelCodeTop.Size = new System.Drawing.Size(269, 59);
+            this.panelCodeTop.TabIndex = 10;
             // 
             // labelFilter
             // 
@@ -207,7 +207,7 @@
             // 
             this.splitterLeftMiddle.BackColor = System.Drawing.Color.MediumSeaGreen;
             this.splitterLeftMiddle.Dock = System.Windows.Forms.DockStyle.Right;
-            this.splitterLeftMiddle.Location = new System.Drawing.Point(313, 0);
+            this.splitterLeftMiddle.Location = new System.Drawing.Point(269, 0);
             this.splitterLeftMiddle.Name = "splitterLeftMiddle";
             this.splitterLeftMiddle.Size = new System.Drawing.Size(4, 538);
             this.splitterLeftMiddle.TabIndex = 11;
@@ -219,7 +219,7 @@
             this.panelMiddle.Controls.Add(this.panelMiddleToolbar);
             this.panelMiddle.Dock = System.Windows.Forms.DockStyle.Right;
             this.panelMiddle.Enabled = false;
-            this.panelMiddle.Location = new System.Drawing.Point(317, 0);
+            this.panelMiddle.Location = new System.Drawing.Point(273, 0);
             this.panelMiddle.Name = "panelMiddle";
             this.panelMiddle.Size = new System.Drawing.Size(367, 538);
             this.panelMiddle.TabIndex = 12;
@@ -394,7 +394,7 @@
             // 
             this.splitterMiddleRight.BackColor = System.Drawing.Color.DodgerBlue;
             this.splitterMiddleRight.Dock = System.Windows.Forms.DockStyle.Right;
-            this.splitterMiddleRight.Location = new System.Drawing.Point(684, 0);
+            this.splitterMiddleRight.Location = new System.Drawing.Point(640, 0);
             this.splitterMiddleRight.Name = "splitterMiddleRight";
             this.splitterMiddleRight.Size = new System.Drawing.Size(4, 538);
             this.splitterMiddleRight.TabIndex = 4;
@@ -405,7 +405,7 @@
             this.panelSidebar.Controls.Add(this.panelSidebarBottom);
             this.panelSidebar.Controls.Add(this.panelSidebarTop);
             this.panelSidebar.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panelSidebar.Location = new System.Drawing.Point(688, 0);
+            this.panelSidebar.Location = new System.Drawing.Point(644, 0);
             this.panelSidebar.Name = "panelSidebar";
             this.panelSidebar.Size = new System.Drawing.Size(320, 538);
             this.panelSidebar.TabIndex = 9;
@@ -544,7 +544,7 @@
             this.panelSeparator.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelSeparator.Location = new System.Drawing.Point(0, 107);
             this.panelSeparator.Name = "panelSeparator";
-            this.panelSeparator.Size = new System.Drawing.Size(1008, 3);
+            this.panelSeparator.Size = new System.Drawing.Size(964, 3);
             this.panelSeparator.TabIndex = 17;
             // 
             // progressBar1
@@ -553,7 +553,7 @@
             this.progressBar1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.progressBar1.Location = new System.Drawing.Point(0, 0);
             this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(1008, 3);
+            this.progressBar1.Size = new System.Drawing.Size(964, 3);
             this.progressBar1.TabIndex = 0;
             // 
             // buttonAnalyze
@@ -636,10 +636,22 @@
             this.panelTop.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelTop.Location = new System.Drawing.Point(0, 0);
             this.panelTop.Name = "panelTop";
-            this.panelTop.Size = new System.Drawing.Size(1008, 107);
+            this.panelTop.Size = new System.Drawing.Size(964, 107);
             this.panelTop.TabIndex = 8;
             this.panelTop.Paint += new System.Windows.Forms.PaintEventHandler(this.panelTop_Paint);
             this.panelTop.Resize += new System.EventHandler(this.panel1_Resize);
+            // 
+            // linkCredits
+            // 
+            this.linkCredits.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.linkCredits.AutoSize = true;
+            this.linkCredits.Location = new System.Drawing.Point(920, 9);
+            this.linkCredits.Name = "linkCredits";
+            this.linkCredits.Size = new System.Drawing.Size(41, 13);
+            this.linkCredits.TabIndex = 12;
+            this.linkCredits.TabStop = true;
+            this.linkCredits.Text = "Credits";
+            this.linkCredits.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkCredits_LinkClicked);
             // 
             // panelWorkingDirBrowseAnalyze
             // 
@@ -765,22 +777,11 @@
             this.deleteToolStripMenuItem.Text = "Delete";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
             // 
-            // linkCredits
-            // 
-            this.linkCredits.AutoSize = true;
-            this.linkCredits.Location = new System.Drawing.Point(943, 9);
-            this.linkCredits.Name = "linkCredits";
-            this.linkCredits.Size = new System.Drawing.Size(41, 13);
-            this.linkCredits.TabIndex = 12;
-            this.linkCredits.TabStop = true;
-            this.linkCredits.Text = "Credits";
-            this.linkCredits.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkCredits_LinkClicked);
-            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1008, 729);
+            this.ClientSize = new System.Drawing.Size(964, 729);
             this.Controls.Add(this.panelParent);
             this.Controls.Add(this.panelSeparator);
             this.Controls.Add(this.panelTop);
@@ -791,9 +792,9 @@
             this.Load += new System.EventHandler(this.Form1_Load);
             this.Resize += new System.EventHandler(this.Main_Resize);
             this.panelParent.ResumeLayout(false);
-            this.panelNode.ResumeLayout(false);
-            this.panelNodeTop.ResumeLayout(false);
-            this.panelNodeTop.PerformLayout();
+            this.panelCodes.ResumeLayout(false);
+            this.panelCodeTop.ResumeLayout(false);
+            this.panelCodeTop.PerformLayout();
             this.panelMiddle.ResumeLayout(false);
             this.panelMiddleToolbar.ResumeLayout(false);
             this.panelMiddleToolbar.PerformLayout();
@@ -837,9 +838,9 @@
         private System.Windows.Forms.Panel panelSidebarBottom;
         private System.Windows.Forms.Panel panelReferenceTextToolbar;
         private System.Windows.Forms.Label labelNumberOfNodes;
-        private System.Windows.Forms.Panel panelNodeTop;
+        private System.Windows.Forms.Panel panelCodeTop;
         private System.Windows.Forms.Panel panelCodeTextToolbar;
-        private System.Windows.Forms.Panel panelNode;
+        private System.Windows.Forms.Panel panelCodes;
         private System.Windows.Forms.Panel panelMiddle;
         private System.Windows.Forms.TreeView treeViewHierarchy;
         private System.Windows.Forms.Panel panelMiddleToolbar;

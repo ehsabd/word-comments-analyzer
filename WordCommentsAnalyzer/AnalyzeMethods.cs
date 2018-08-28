@@ -52,7 +52,7 @@ namespace WordCommentsAnalyzer
 
                         try
                         {
-                            var fileInfoKey = Models.AddFileInfo(fi);
+                            var fileInfoKey = Models.AddFile(fi);
                             ExtractDataFromWordFile(fileInfoKey);
                         }
                         catch (Exception ex)
@@ -66,8 +66,11 @@ namespace WordCommentsAnalyzer
                 Models.MakeCodesArabicPersianCharactersUniform();
                 Models.ComputeCodeStats();
                 Models.SortCodeStatListByFrequency(textCulture.Text);
+                Models.ParagraphsCount = Models.DataExtractsDictionary.SelectMany(p => p.Value.WcaParagraphIds).Distinct().Count();
+
 
 #if DEBUG
+               
                 sw.Stop();
                 System.Diagnostics.Debug.WriteLine("Analysis time (ms): " + sw.ElapsedMilliseconds);
 
@@ -83,14 +86,14 @@ namespace WordCommentsAnalyzer
 
 
 
-        public void ExtractDataFromWordFile(string fileInfoKey)
+        public void ExtractDataFromWordFile(string fileKey)
         {
             //This counter runs for every data extract in this file,
             //so the app supports around 2 billion data extracts per each file
             int thisFileDataCounter = 1;
-            var fi = Models.FileInfosDictionary[fileInfoKey];
+            var file = Models.FilesDictionary[fileKey];
             FileStream fs = null;
-            fs = File.Open(fi.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            fs = File.Open(file.Info.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             try {
                 using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(fs, false))
                 {
@@ -110,10 +113,10 @@ namespace WordCommentsAnalyzer
                         foreach (var t in p.Descendants<Text>())
                         {
                             wcaTextId++;
-                            t.SetAttribute(new DocumentFormat.OpenXml.OpenXmlAttribute("wca", wcaTextIdLocalName, null, fileInfoKey + "_t_" + wcaTextId.ToString()));
+                            t.SetAttribute(new DocumentFormat.OpenXml.OpenXmlAttribute("wca", wcaTextIdLocalName, null, fileKey + "_t_" + wcaTextId.ToString()));
                         }
                         wcaParagraphId++;
-                        p.SetAttribute(new DocumentFormat.OpenXml.OpenXmlAttribute("wca", wcaParagraphIdLocalName, null, fileInfoKey + "_p_" + wcaParagraphId.ToString()));
+                        p.SetAttribute(new DocumentFormat.OpenXml.OpenXmlAttribute("wca", wcaParagraphIdLocalName, null, fileKey + "_p_" + wcaParagraphId.ToString()));
                     }
 
                     var allComments = WordCommentsHelper.GetWordDocumentComments(main);
@@ -156,12 +159,12 @@ namespace WordCommentsAnalyzer
 
                         thisFileDataCounter++;
                         //NOTE that the first part of the following dataExtractId is needed to ensure unique ids
-                        var dataExtractId = fileInfoKey + "_" + thisFileDataCounter;
+                        var dataExtractId = fileKey + "_" + thisFileDataCounter;
                         var codes = WordCommentsHelper.ExtractCodesFromComment(comment);
 
                         Models.DataExtractsDictionary.Add(dataExtractId, new Models.DataExtract
                         {
-                            FileInfoKey = fileInfoKey,
+                            FileKey = fileKey,
 
                             ReferenceText = refText,
                             ImagePartIds = imagesRelationshipIds,
@@ -169,7 +172,9 @@ namespace WordCommentsAnalyzer
                             WcaParagraphIds = wcaParagraphIds.ToArray(),
                             WcaTextIds = wcaTextIds
                         });
-                        AddUpdateCodesDictionary(codes, dataExtractId);
+                        var fileCodesDictionary = file.CodesDictionary;
+                        Models.AddUpdateCodesDictionary(ref fileCodesDictionary, codes, dataExtractId);
+                        Models.AddUpdateCodesDictionary(ref Models.CodesDictionary, codes, dataExtractId);
                     }
                 }
             }
@@ -182,17 +187,6 @@ namespace WordCommentsAnalyzer
             }
         }
 
-        public void AddUpdateCodesDictionary(IEnumerable<string> codes, string dataExtractId)
-        {
-            foreach (var p in codes)
-            {
-                if (!Models.CodesDictionary.ContainsKey(p))
-                {
-                    var code = new Models.Code { Value = p, DataExtractsIds = new List<string>() };
-                    Models.CodesDictionary[p] = code;
-                }
-                Models.CodesDictionary[p].DataExtractsIds.Add(dataExtractId);
-            }
-        }
-        }
+       
+    }
 }

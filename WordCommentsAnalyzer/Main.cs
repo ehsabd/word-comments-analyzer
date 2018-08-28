@@ -265,9 +265,17 @@ namespace WordCommentsAnalyzer
 
         private void treeViewHierarchy_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
         {
-            e.Node.Name = e.Node.Parent.FullPath+"\\"+e.Label; //change key to full path again
             treeViewHierarchy.LabelEdit = false;//we want to have full control over editing (only by edit button)
+            if (e.Label == null) return;
+            e.Node.Name = e.Node.Parent.FullPath + "\\" + e.Label; //change key to full path again
             HandlePossibleChangeInHierarchy(e.Label);
+            if (Models.CodesDictionary.ContainsKey(e.Label))
+            {
+                MessageBox.Show(string.Format("Note that this code ({0}) also exists in the documents codes (i.e., Comments)",e.Label),
+                    "Code in document codes",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
         }
 
         private void treeViewHierarchy_AfterSelect(object sender, TreeViewEventArgs e)
@@ -333,6 +341,8 @@ namespace WordCommentsAnalyzer
         {
             UpdateCodeBackground(relevantCode);
             UpdateHierarchyNodeNumbers();
+            WriteCodeHierarchyFile();
+
         }
 
         private void treeViewHierarchy_KeyUp(object sender, KeyEventArgs e)
@@ -413,7 +423,7 @@ namespace WordCommentsAnalyzer
         {
             var refText = dxt.ReferenceText;
             var codes = string.Join(", ", dxt.Codes);
-            var fileName = dxt.FileInfo.Name;
+            var fileName = dxt.File.Info.Name;
             ListViewItem item = null;
             if (string.IsNullOrEmpty(refText))
             {
@@ -460,13 +470,15 @@ namespace WordCommentsAnalyzer
         {
             if (e.UserState != null)
             {
-                textLog.Text += Environment.NewLine + e.UserState.ToString();
+                Log(e.UserState.ToString());
             }
             progressBar1.Value = e.ProgressPercentage;
         }
 
         private void bwAnalyze_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
+            Log("Paragraphs Count: " + Models.ParagraphsCount);
+
             panelMiddle.Enabled = true;
             buttonVisualize.Enabled = true;
             filteredBy = textFilter.Text;
@@ -489,6 +501,7 @@ namespace WordCommentsAnalyzer
 
         private void View_Changed(object sender, EventArgs e)
         {
+            
             var listViewCodesW = listViewCodes.Width;
             var controls = new List<System.Windows.Forms.Control>();
             controls.Add(panelMiddle);
@@ -501,7 +514,7 @@ namespace WordCommentsAnalyzer
                 c.Visible = radioThreePanels.Checked;
             }
             Width = radioThreePanels.Checked ? fullWidth :
-                listViewCodesW + listViewCodes.Margin.Right + listViewCodes.Margin.Left;
+                Math.Max(listViewCodesW + listViewCodes.Margin.Right + listViewCodes.Margin.Left,260);
 
         }
 
@@ -536,6 +549,12 @@ namespace WordCommentsAnalyzer
             }
             else {
                 var codesInHierarchy = TreeNodeRecursive.GetTreeNodeTextsTopDownRecursive(treeViewHierarchy.Nodes[0]);
+#if DEBUG
+                
+                Log( "Codes in hierarchy: " + Models.CodesDictionary.Keys.Intersect(codesInHierarchy).Count());
+                
+                
+#endif
                 CodeListHelper.UpdateCodesListView(ref listViewCodes, Models.FilteredCodeStatList,codesInHierarchy);
                 labelNumberOfNodes.Text = string.Format("{0} Codes", listViewCodes.Items.Count);
             }
@@ -731,6 +750,13 @@ namespace WordCommentsAnalyzer
         private void linkCredits_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             (new Credits()).ShowDialog();
+        }
+
+        private void Log (string text)
+        {
+            textLog.Text += Environment.NewLine + text;
+            textLog.Select(textLog.Text.Length, 0);
+            textLog.ScrollToCaret();
         }
     }
 }

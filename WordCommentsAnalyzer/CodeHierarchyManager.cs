@@ -56,7 +56,7 @@ namespace WordCommentsAnalyzer
             }
             catch (Exception ex)
             {
-                textLog.Text += string.Join(" ", "Error writing code hierarchy file: ", GetCodeHierarchyFilePath, ex.Message);
+                Log(string.Join(" ", "Error writing code hierarchy file: ", GetCodeHierarchyFilePath, ex.Message));
                 return false;
             }
         }
@@ -88,7 +88,7 @@ namespace WordCommentsAnalyzer
             }
             catch (Exception ex)
             {
-                textLog.Text += string.Join(" ", "Error reading code hierarchy file: ", GetCodeHierarchyFilePath, ex.Message);
+                Log ( string.Join(" ", "Error reading code hierarchy file: ", GetCodeHierarchyFilePath, ex.Message));
             }
 
             treeViewHierarchy.BeginUpdate();
@@ -124,7 +124,7 @@ namespace WordCommentsAnalyzer
             }
             catch (Exception ex)
             {
-                textLog.Text += string.Join(" ", "Error converting code hierarchy file content to tree: ", ex.Message);
+                Log(string.Join(" ", "Error converting code hierarchy file content to tree: ", ex.Message));
             }
             finally
             {

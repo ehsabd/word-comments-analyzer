@@ -13,7 +13,7 @@ namespace WordCommentsAnalyzer
         {
             CodesDictionary.Clear();
             DataExtractsDictionary.Clear();
-            FileInfosDictionary.Clear();
+            FilesDictionary.Clear();
         }
 
         public class DataExtract
@@ -21,7 +21,7 @@ namespace WordCommentsAnalyzer
             /// <summary>
             /// The key that relates this dataextract to a FileInfo object in FileInfosDictionary
             /// </summary>
-            public string FileInfoKey{ get; set; }
+            public string FileKey{ get; set; }
             public string ReferenceText { get; set; }
             /// <summary>
             /// Note that the codes are stored both in the CodesDictionary and here because we need
@@ -31,9 +31,9 @@ namespace WordCommentsAnalyzer
             public string[] ImagePartIds { get; set; }
             public string[] WcaTextIds { get; set; }
             public string[] WcaParagraphIds { get; set; }
-            public System.IO.FileInfo FileInfo { get
+            public File File { get
                 {
-                    return FileInfosDictionary[FileInfoKey];
+                    return FilesDictionary[FileKey];
                 }
             }
             public List<System.Drawing.Image> GetImages()
@@ -41,7 +41,7 @@ namespace WordCommentsAnalyzer
                 System.IO.FileStream fs = null;
                 try
                 {
-                    fs = System.IO.File.Open(FileInfo.FullName, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite);
+                    fs = System.IO.File.Open(File.Info.FullName, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite);
                     using (var wordDoc = DocumentFormat.OpenXml.Packaging.WordprocessingDocument.Open(fs, false))
                     {
                         var main = wordDoc.MainDocumentPart;
@@ -88,7 +88,16 @@ namespace WordCommentsAnalyzer
         {
             public Code Code { get; set; }
             public int Frequency { get; set; }
-            public bool IsInHierarchy { get; set; }
+        }
+
+        public class File
+        {
+            public System.IO.FileInfo Info { get; set; }
+            /// <summary>
+            /// Note that we calculate File Code Matrix based on the number of data extracts pertaining to each code
+            /// </summary>
+            public Dictionary<string,Code> CodesDictionary { get; set; }
+
         }
 
         /// <summary>
@@ -97,23 +106,45 @@ namespace WordCommentsAnalyzer
         /// </summary>
         public static Dictionary<string, DataExtract> DataExtractsDictionary = new Dictionary<string, DataExtract>();
         public static Dictionary<string, Code> CodesDictionary = new Dictionary<string, Code>(StringComparer.OrdinalIgnoreCase);
-            
-        /// <summary>
-        /// This dictionary is used to store each FileInfo for use in DataExtract to get FileName and also
-        /// images, see how the key is produced in AddFileInfo method.
-        /// </summary>
-        public static Dictionary<string, System.IO.FileInfo> FileInfosDictionary 
-            = new Dictionary<string, System.IO.FileInfo>();
 
-        public static string AddFileInfo(System.IO.FileInfo fi)
+        /// <summary>
+        /// This dictionary is used to store each FileInfo and CodesDataExtractIdsDictionary:
+        /// - to use in DataExtract to get FileName
+        /// - to get images
+        /// - to cound data extracts per code per file
+        ///  see how the key is produced in AddFile method.
+        /// </summary>
+        public static Dictionary<string, File> FilesDictionary 
+            = new Dictionary<string, File>();
+
+        public static string AddFile(System.IO.FileInfo fi)
         {
             var key = fi.Name.UTF8ToBase64Ext();
-            FileInfosDictionary.Add(key, fi);
+            FilesDictionary.Add(key, new File
+            {
+                Info = fi,
+                CodesDictionary = new Dictionary<string, Code>()
+            });
             return key;
         }
 
         public static List<CodeStat> CodeStatList = new List<CodeStat>();
         public static List<CodeStat> FilteredCodeStatList = new List<CodeStat>();
+
+        public static int ParagraphsCount =0;
+
+        public static void AddUpdateCodesDictionary(ref Dictionary<string, Code> dict, IEnumerable<string> codes, string dataExtractId)
+        {
+            foreach (var c in codes)
+            {
+                if (!dict.ContainsKey(c))
+                {
+                    var code = new Models.Code { Value = c, DataExtractsIds = new List<string>() };
+                    dict[c] = code;
+                }
+                dict[c].DataExtractsIds.Add(dataExtractId);
+            }
+        }
 
         //pass textCulture.Text for culturetext
         public static void SortCodeStatListByCode(string cultureText)
