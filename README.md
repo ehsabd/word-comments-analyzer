@@ -3,7 +3,7 @@
 **NOTE:** Only Windows release included. Those interested in running this app in Mac or Linux may consider building the source themselves.
 
 ## How to use it?
-First you need to install .NET Framework 4.5.2, then unzip the latest release package from [this link](https://github.com/ehsabd/word-comments-analyzer/releases/) and extract it. Run *WordCommentsAnalyzer.exe*. Good luck with your research.
+First you need to install [.NET Framework 4.5.2](https://www.google.com/search?q=download+.net+framework+4.5.2), then unzip the latest release package from [this link](https://github.com/ehsabd/word-comments-analyzer/releases/) and extract it. Run *WordCommentsAnalyzer.exe*. Good luck with your research.
 
 For more information about usage see this article:[https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6137411/](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6137411/)
 
