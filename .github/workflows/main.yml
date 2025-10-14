@@ -24,7 +24,7 @@ jobs:
 
     - name: Restore NuGet packages for specific project
       run: |
-        nuget restore WordCommentsAnalyzer/WordCommentsAnalyzer.csproj
+        nuget restore WordCommentsAnalyzer/WordCommentsAnalyzer.csproj -PackagesDirectory packages
 
     - name: Build only WordCommentsAnalyzer project
       run: |
@@ -33,7 +33,7 @@ jobs:
           /p:Platform="Any CPU" ^
           /p:TargetFrameworkVersion=v4.5.2 ^
           /p:OutputPath=..\bin\Release ^
-          /p:RestorePackages=true ^
+          /p:RestorePackages=false ^
           /p:AutoGenerateBindingRedirects=true ^
           /p:GenerateBindingRedirectsOutputType=true
 
