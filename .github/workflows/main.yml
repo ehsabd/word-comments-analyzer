@@ -1,4 +1,4 @@
-name: Build .NET Framework 4.5.2 WinForms Application
+name: Build WordCommentsAnalyzer .NET Framework 4.5.2 WinForms
 
 on:
   push:
@@ -16,25 +16,44 @@ jobs:
 
     - name: Setup .NET Framework
       uses: microsoft/setup-msbuild@v1.1
-      
-    - name: Setup MSBuild for .NET Framework 4.5.2
-      run: |
-        # Ensure .NET Framework 4.5.2 targeting pack is available
-        # Windows-latest runner should have this, but we verify
-        echo "Checking .NET Framework targeting packs..."
-        dir "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework"
 
-    - name: Restore NuGet packages
-      run: nuget restore
-      
-    - name: Build Solution
+    - name: Setup NuGet
+      uses: nuget/setup-nuget@v1
+      with:
+        nuget-version: 'latest'
+
+    - name: Restore NuGet packages for specific project
       run: |
-        msbuild WordCommentsAnalyzer.sln /p:Configuration=Release /p:Platform="Any CPU" /p:TargetFrameworkVersion=v4.5.2 /p:OutputPath=bin\Release
+        nuget restore WordCommentsAnalyzer/WordCommentsAnalyzer.csproj
+
+    - name: Build only WordCommentsAnalyzer project
+      run: |
+        msbuild WordCommentsAnalyzer/WordCommentsAnalyzer.csproj ^
+          /p:Configuration=Release ^
+          /p:Platform="Any CPU" ^
+          /p:TargetFrameworkVersion=v4.5.2 ^
+          /p:OutputPath=..\bin\Release ^
+          /p:RestorePackages=true ^
+          /p:AutoGenerateBindingRedirects=true ^
+          /p:GenerateBindingRedirectsOutputType=true
+
+    - name: Check if build succeeded
+      id: build_check
+      run: |
+        if exist "bin\Release\WordCommentsAnalyzer.exe" (
+          echo "Build successful - WordCommentsAnalyzer.exe found"
+          echo "success=true" >> $GITHUB_OUTPUT
+        ) else (
+          echo "Build failed - WordCommentsAnalyzer.exe not found"
+          echo "success=false" >> $GITHUB_OUTPUT
+        )
 
     - name: Create app.config with .NET Framework requirement
+      if: steps.build_check.outputs.success == 'true'
       run: |
-        # Create or update app.config to require .NET Framework 4.5.2
-        $configContent = @"
+        # Ensure app.config exists with framework requirement
+        if not exist "bin\Release\WordCommentsAnalyzer.exe.config" (
+          $configContent = @"
         <?xml version="1.0" encoding="utf-8"?>
         <configuration>
           <startup>
@@ -42,51 +61,74 @@ jobs:
           </startup>
         </configuration>
         "@
-        $configContent | Out-File -FilePath "WordCommentsAnalyzer\App.config" -Encoding UTF8
+          $configContent | Out-File -FilePath "bin\Release\WordCommentsAnalyzer.exe.config" -Encoding UTF8
+          echo "Created app.config with .NET Framework 4.5.2 requirement"
+        } else (
+          echo "app.config already exists"
+        )
 
-    - name: Rebuild with embedded framework requirement
-      run: |
-        msbuild WordCommentsAnalyzer.sln /p:Configuration=Release /p:Platform="Any CPU" /p:TargetFrameworkVersion=v4.5.2 /p:OutputPath=bin\Release
-
-    - name: Include .NET Framework redistributable (optional)
+    - name: Download .NET Framework redistributable
+      if: steps.build_check.outputs.success == 'true'
       run: |
         # Download .NET Framework 4.5.2 redistributable
         $netfxUrl = "https://download.microsoft.com/download/E/2/1/E21644B5-2DF2-47C2-91BD-63C560427900/NDP452-KB2901907-x86-x64-AllOS-ENU.exe"
         $outputPath = "bin\Release\dotnetfx452.exe"
         Invoke-WebRequest -Uri $netfxUrl -OutFile $outputPath
-        echo "✅ .NET Framework 4.5.2 redistributable included in build output"
+        echo "✅ .NET Framework 4.5.2 redistributable included"
 
     - name: Create deployment package
+      if: steps.build_check.outputs.success == 'true'
       run: |
-        # Create a deployment folder with application and framework installer
+        # Create deployment folder
         New-Item -ItemType Directory -Path "Deployment" -Force
-        Copy-Item "bin\Release\*.exe" -Destination "Deployment\" -Exclude "dotnetfx452.exe"
-        Copy-Item "bin\Release\*.dll" -Destination "Deployment\"
-        Copy-Item "bin\Release\*.config" -Destination "Deployment\"
-        Copy-Item "bin\Release\dotnetfx452.exe" -Destination "Deployment\"
         
-        # Create a simple installer script
+        # Copy all build outputs
+        Copy-Item "bin\Release\*" -Destination "Deployment\" -Recurse
+        
+        # Create installer script
         $installScript = @"
         @echo off
+        title WordCommentsAnalyzer Setup
         echo Checking for .NET Framework 4.5.2...
-        reg query "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full" /v Release | find "379893"
-        if %errorlevel% neq 0 (
-          echo .NET Framework 4.5.2 not found. Installing...
-          dotnetfx452.exe /quiet /norestart
-          echo Installation may require restart. Please run the application again.
+        
+        reg query "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full" /v Release | find "379893" >nul
+        if %errorlevel% equ 0 (
+          echo .NET Framework 4.5.2 is installed.
+          echo Starting WordCommentsAnalyzer...
+          WordCommentsAnalyzer.exe
+          exit /b 0
+        )
+        
+        echo .NET Framework 4.5.2 not found.
+        echo Would you like to install it now? (Y/N)
+        set /p choice=
+        if /i "%choice%" neq "Y" (
+          echo Installation cancelled.
           pause
           exit /b 1
         )
-        echo .NET Framework 4.5.2 is installed.
-        WordCommentsAnalyzer.exe
+        
+        echo Installing .NET Framework 4.5.2...
+        dotnetfx452.exe /quiet /norestart
+        echo Installation started. Please wait for completion and then run WordCommentsAnalyzer.exe
+        pause
         "@
-        $installScript | Out-File -FilePath "Deployment\RunApplication.bat" -Encoding ascii
+        
+        $installScript | Out-File -FilePath "Deployment\InstallAndRun.bat" -Encoding ascii
+        echo "✅ Deployment package created"
 
     - name: Upload build artifacts
+      if: steps.build_check.outputs.success == 'true'
       uses: actions/upload-artifact@v4
       with:
-        name: winforms-app
+        name: WordCommentsAnalyzer
         path: |
           bin/Release/
           Deployment/
         retention-days: 30
+
+    - name: Build failed notification
+      if: steps.build_check.outputs.success == 'false'
+      run: |
+        echo "❌ Build failed - WordCommentsAnalyzer project compilation unsuccessful"
+        exit 1
