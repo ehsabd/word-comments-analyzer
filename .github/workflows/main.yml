@@ -28,14 +28,7 @@ jobs:
 
     - name: Build only WordCommentsAnalyzer project
       run: |
-        msbuild "WordCommentsAnalyzer/WordCommentsAnalyzer.csproj" ^
-          /p:Configuration=Release ^
-          /p:Platform="Any CPU" ^
-          /p:TargetFrameworkVersion=v4.5.2 ^
-          /p:OutputPath=..\bin\Release ^
-          /p:RestorePackages=false ^
-          /p:AutoGenerateBindingRedirects=true ^
-          /p:GenerateBindingRedirectsOutputType=true
+        msbuild "WordCommentsAnalyzer/WordCommentsAnalyzer.csproj" /p:Configuration=Release /p:Platform="Any CPU" /p:TargetFrameworkVersion=v4.5.2 /p:OutputPath=..\bin\Release /p:RestorePackages=false /p:AutoGenerateBindingRedirects=true /p:GenerateBindingRedirectsOutputType=true
 
     - name: Check if build succeeded
       id: build_check
