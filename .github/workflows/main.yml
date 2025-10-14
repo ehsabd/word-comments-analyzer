@@ -28,7 +28,7 @@ jobs:
 
     - name: Build only WordCommentsAnalyzer project
       run: |
-        msbuild WordCommentsAnalyzer/WordCommentsAnalyzer.csproj ^
+        msbuild "WordCommentsAnalyzer/WordCommentsAnalyzer.csproj" ^
           /p:Configuration=Release ^
           /p:Platform="Any CPU" ^
           /p:TargetFrameworkVersion=v4.5.2 ^
