@@ -29,19 +29,18 @@ jobs:
     - name: Build only WordCommentsAnalyzer project
       run: |
         msbuild "WordCommentsAnalyzer/WordCommentsAnalyzer.csproj" /p:Configuration=Release /p:Platform="Any CPU" /p:TargetFrameworkVersion=v4.5.2 /p:OutputPath=..\bin\Release /p:RestorePackages=false /p:AutoGenerateBindingRedirects=true /p:GenerateBindingRedirectsOutputType=true
-
+    
     - name: Check if build succeeded
       id: build_check
       run: |
         if (Test-Path "bin\Release\WordCommentsAnalyzer.exe") {
-           echo "Build successful - WordCommentsAnalyzer.exe found"
-           echo "success=true" >> $GITHUB_OUTPUT
-         } else {
-           echo "Build failed - WordCommentsAnalyzer.exe not found"
-           echo "success=false" >> $GITHUB_OUTPUT
-         }
+          echo "Build successful - WordCommentsAnalyzer.exe found"
+        } else {
+          echo "❌ Build failed - WordCommentsAnalyzer.exe not found"
+          exit 1
+        }
+    
     - name: Create app.config with .NET Framework requirement
-      if: steps.build_check.outputs.success == 'true'
       run: |
         # Ensure app.config exists with framework requirement
         if (-not (Test-Path "bin\Release\WordCommentsAnalyzer.exe.config")) {
@@ -58,9 +57,8 @@ jobs:
         } else {
           echo "app.config already exists"
         }
-
+    
     - name: Download .NET Framework redistributable
-      if: steps.build_check.outputs.success == 'true'
       run: |
         # Download .NET Framework 4.5.2 redistributable
         $netfxUrl = "https://download.microsoft.com/download/E/2/1/E21644B5-2DF2-47C2-91BD-63C560427900/NDP452-KB2901907-x86-x64-AllOS-ENU.exe"
@@ -71,9 +69,8 @@ jobs:
         } catch {
           echo "⚠️  Failed to download .NET Framework redistributable, continuing without it"
         }
-
+    
     - name: Create deployment package
-      if: steps.build_check.outputs.success == 'true'
       run: |
         # Create deployment folder
         New-Item -ItemType Directory -Path "Deployment" -Force
@@ -112,9 +109,8 @@ jobs:
         
         $installScript | Out-File -FilePath "Deployment\InstallAndRun.bat" -Encoding ascii
         echo "✅ Deployment package created"
-
+    
     - name: Upload build artifacts
-      if: steps.build_check.outputs.success == 'true'
       uses: actions/upload-artifact@v4
       with:
         name: WordCommentsAnalyzer
@@ -122,9 +118,3 @@ jobs:
           bin/Release/
           Deployment/
         retention-days: 30
-
-    - name: Build failed notification
-      if: steps.build_check.outputs.success == 'false'
-      run: |
-        echo "❌ Build failed - WordCommentsAnalyzer project compilation unsuccessful"
-        exit 1
