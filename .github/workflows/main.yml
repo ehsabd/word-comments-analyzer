@@ -1,0 +1,92 @@
+name: Build .NET Framework 4.5.2 WinForms Application
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET Framework
+      uses: microsoft/setup-msbuild@v1.1
+      
+    - name: Setup MSBuild for .NET Framework 4.5.2
+      run: |
+        # Ensure .NET Framework 4.5.2 targeting pack is available
+        # Windows-latest runner should have this, but we verify
+        echo "Checking .NET Framework targeting packs..."
+        dir "C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework"
+
+    - name: Restore NuGet packages
+      run: nuget restore
+      
+    - name: Build Solution
+      run: |
+        msbuild WordCommentsAnalyzer.sln /p:Configuration=Release /p:Platform="Any CPU" /p:TargetFrameworkVersion=v4.5.2 /p:OutputPath=bin\Release
+
+    - name: Create app.config with .NET Framework requirement
+      run: |
+        # Create or update app.config to require .NET Framework 4.5.2
+        $configContent = @"
+        <?xml version="1.0" encoding="utf-8"?>
+        <configuration>
+          <startup>
+            <supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.5.2"/>
+          </startup>
+        </configuration>
+        "@
+        $configContent | Out-File -FilePath "WordCommentsAnalyzer\App.config" -Encoding UTF8
+
+    - name: Rebuild with embedded framework requirement
+      run: |
+        msbuild WordCommentsAnalyzer.sln /p:Configuration=Release /p:Platform="Any CPU" /p:TargetFrameworkVersion=v4.5.2 /p:OutputPath=bin\Release
+
+    - name: Include .NET Framework redistributable (optional)
+      run: |
+        # Download .NET Framework 4.5.2 redistributable
+        $netfxUrl = "https://download.microsoft.com/download/E/2/1/E21644B5-2DF2-47C2-91BD-63C560427900/NDP452-KB2901907-x86-x64-AllOS-ENU.exe"
+        $outputPath = "bin\Release\dotnetfx452.exe"
+        Invoke-WebRequest -Uri $netfxUrl -OutFile $outputPath
+        echo "✅ .NET Framework 4.5.2 redistributable included in build output"
+
+    - name: Create deployment package
+      run: |
+        # Create a deployment folder with application and framework installer
+        New-Item -ItemType Directory -Path "Deployment" -Force
+        Copy-Item "bin\Release\*.exe" -Destination "Deployment\" -Exclude "dotnetfx452.exe"
+        Copy-Item "bin\Release\*.dll" -Destination "Deployment\"
+        Copy-Item "bin\Release\*.config" -Destination "Deployment\"
+        Copy-Item "bin\Release\dotnetfx452.exe" -Destination "Deployment\"
+        
+        # Create a simple installer script
+        $installScript = @"
+        @echo off
+        echo Checking for .NET Framework 4.5.2...
+        reg query "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full" /v Release | find "379893"
+        if %errorlevel% neq 0 (
+          echo .NET Framework 4.5.2 not found. Installing...
+          dotnetfx452.exe /quiet /norestart
+          echo Installation may require restart. Please run the application again.
+          pause
+          exit /b 1
+        )
+        echo .NET Framework 4.5.2 is installed.
+        WordCommentsAnalyzer.exe
+        "@
+        $installScript | Out-File -FilePath "Deployment\RunApplication.bat" -Encoding ascii
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: winforms-app
+        path: |
+          bin/Release/
+          Deployment/
+        retention-days: 30
