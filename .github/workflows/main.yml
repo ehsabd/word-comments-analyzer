@@ -33,19 +33,18 @@ jobs:
     - name: Check if build succeeded
       id: build_check
       run: |
-        if exist "bin\Release\WordCommentsAnalyzer.exe" (
-          echo "Build successful - WordCommentsAnalyzer.exe found"
-          echo "success=true" >> $GITHUB_OUTPUT
-        ) else (
-          echo "Build failed - WordCommentsAnalyzer.exe not found"
-          echo "success=false" >> $GITHUB_OUTPUT
-        )
-
+        if (Test-Path "bin\Release\WordCommentsAnalyzer.exe") {
+           echo "Build successful - WordCommentsAnalyzer.exe found"
+           echo "success=true" >> $GITHUB_OUTPUT
+         } else {
+           echo "Build failed - WordCommentsAnalyzer.exe not found"
+           echo "success=false" >> $GITHUB_OUTPUT
+         }
     - name: Create app.config with .NET Framework requirement
       if: steps.build_check.outputs.success == 'true'
       run: |
         # Ensure app.config exists with framework requirement
-        if not exist "bin\Release\WordCommentsAnalyzer.exe.config" (
+        if (-not (Test-Path "bin\Release\WordCommentsAnalyzer.exe.config")) {
           $configContent = @"
         <?xml version="1.0" encoding="utf-8"?>
         <configuration>
@@ -56,9 +55,9 @@ jobs:
         "@
           $configContent | Out-File -FilePath "bin\Release\WordCommentsAnalyzer.exe.config" -Encoding UTF8
           echo "Created app.config with .NET Framework 4.5.2 requirement"
-        } else (
+        } else {
           echo "app.config already exists"
-        )
+        }
 
     - name: Download .NET Framework redistributable
       if: steps.build_check.outputs.success == 'true'
@@ -66,8 +65,12 @@ jobs:
         # Download .NET Framework 4.5.2 redistributable
         $netfxUrl = "https://download.microsoft.com/download/E/2/1/E21644B5-2DF2-47C2-91BD-63C560427900/NDP452-KB2901907-x86-x64-AllOS-ENU.exe"
         $outputPath = "bin\Release\dotnetfx452.exe"
-        Invoke-WebRequest -Uri $netfxUrl -OutFile $outputPath
-        echo "✅ .NET Framework 4.5.2 redistributable included"
+        try {
+          Invoke-WebRequest -Uri $netfxUrl -OutFile $outputPath
+          echo "✅ .NET Framework 4.5.2 redistributable included"
+        } catch {
+          echo "⚠️  Failed to download .NET Framework redistributable, continuing without it"
+        }
 
     - name: Create deployment package
       if: steps.build_check.outputs.success == 'true'
