@@ -95,15 +95,22 @@ namespace WordCommentsAnalyzer
             FileStream fs = null;
             fs = File.Open(file.Info.FullName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             try {
-                using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(fs, false))
+                using (var docxCopy = new MemoryStream())
                 {
+                    fs.CopyTo(docxCopy);
+                    docxCopy.Position = 0;
+
+                    using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(docxCopy, false))
+                    {
                     /*NOTE We use wca:wcaTextId and  wca:wcaParagraphId as attributes identifying particular Paragraphs or Runs 
                         Storing these data is only needed for complex queries or finding co-occurrences
                     */
                     long wcaTextId = 0, wcaParagraphId = 0;
                     string wcaTextIdLocalName = "wcaTextId", wcaParagraphIdLocalName = "wcaParagraphId";
-                    WordprocessingDocument clone = (WordprocessingDocument)wordDoc.Clone();
-                    var main = clone.MainDocumentPart;
+                    // Work on a copied package because the analysis injects temporary wca:* attributes
+                    // into the OpenXML DOM. WordprocessingDocument.Clone() served that isolation purpose,
+                    // but Mono's packaging implementation can fail during Clone() with "Root element is missing".
+                    var main = wordDoc.MainDocumentPart;
                     //Set wcaTextId and wcaParagraphId attribute for all runs so that they will be identifiable
                     //NOTE that we could only add this attributes to runs or paragraphs that are commented
                     //but then we would have to check each time whether they have the attribute or not
@@ -175,6 +182,7 @@ namespace WordCommentsAnalyzer
                         var fileCodesDictionary = file.CodesDictionary;
                         Models.AddUpdateCodesDictionary(ref fileCodesDictionary, codes, dataExtractId);
                         Models.AddUpdateCodesDictionary(ref Models.CodesDictionary, codes, dataExtractId);
+                    }
                     }
                 }
             }
