@@ -387,15 +387,17 @@ namespace WordCommentsAnalyzer
 
         private void UpdateRefListView(IEnumerable<Models.DataExtract> dataExtracts)
         {
+            var dataExtractsList = dataExtracts.ToList();
             listViewRef.BeginUpdate();
             listViewRef.Items.Clear();
             imageListRef.Images.Clear();
             var imgInd = 0;
             //NOTE that we should set image size before adding the images
-            var hasImage = dataExtracts.Any(dxt => (dxt.ImagePartIds?.Count() ?? 0) > 0);
+            var hasImage = dataExtractsList.Any(dxt => (dxt.ImagePartIds?.Count() ?? 0) > 0);
             imageListRef.ImageSize = hasImage ? new Size(160, 100) : new Size(1, 1);
             listViewRef.LargeImageList = hasImage ? imageListRef : null;
-            foreach (var dxt in dataExtracts)
+            listViewRef.TileSize = hasImage ? new Size(listViewRef.Width - 30, 120) : new Size(listViewRef.Width - 30, 60);
+            foreach (var dxt in dataExtractsList)
             {
                 if ((dxt.ImagePartIds?.Count() ?? 0) == 0)
                 {
@@ -412,7 +414,6 @@ namespace WordCommentsAnalyzer
                 }
             }
 
-            listViewRef.TileSize = hasImage ? new Size(listViewRef.Width - 30, 120) : new Size(listViewRef.Width - 30, 60);
             listViewRef.EndUpdate();
 
         }
@@ -425,15 +426,18 @@ namespace WordCommentsAnalyzer
             ListViewItem item = null;
             if (string.IsNullOrEmpty(refText))
             {
-                item = listViewRef.Items.Add(codes, imageIndex);
+                item = new ListViewItem(codes, imageIndex);
                 item.SubItems.Add(fileName);
             }
             else
             {
-                item = listViewRef.Items.Add(dxt.ReferenceText);
+                item = new ListViewItem(dxt.ReferenceText);
                 item.SubItems.Add(codes);
                 item.SubItems.Add(fileName);
             }
+            // Mono lays out ListView items immediately when subitems are added to an
+            // attached item, which can throw IndexOutOfRangeException in tile view.
+            listViewRef.Items.Add(item);
             return item;
         }
 
