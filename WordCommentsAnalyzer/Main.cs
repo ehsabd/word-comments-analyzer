@@ -138,6 +138,14 @@ namespace WordCommentsAnalyzer
             }
         }
 
+        private void buttonExport_Click(object sender, EventArgs e)
+        {
+            Log("Exporting");
+
+            ExportCodesToMarkdown(GetTimestampedExportPath());
+            
+        }
+
 
 
 

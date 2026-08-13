@@ -91,6 +91,9 @@
     <Compile Include="CodeHierarchyManager.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="ExportManager.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="CodeListHelper.cs" />
     <Compile Include="DragDropEvents.cs">
       <SubType>Form</SubType>
