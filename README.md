@@ -1,6 +1,6 @@
 # Word Comments Analyzer
 
-**NOTE:** Only Windows release included. Those interested in running this app in Mac or Linux may consider building the source themselves.
+**NOTE:** Only Windows releases included. The best option to run the application on Mac or Linux is using virtualization applications like VirtualBox. You may also try mono, but it works with limited functions.
 
 ## How to use it?
 
