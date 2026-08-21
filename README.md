@@ -3,7 +3,16 @@
 **NOTE:** Only Windows release included. Those interested in running this app in Mac or Linux may consider building the source themselves.
 
 ## How to use it?
-First you need to install [.NET Framework 4.5.2](https://www.google.com/search?q=download+.net+framework+4.5.2), then unzip the latest release package from [this link](https://github.com/ehsabd/word-comments-analyzer/releases/) and extract it. Run *WordCommentsAnalyzer.exe*. Good luck with your research.
+
+On Windows 11, you need to unblock the application.
+
+On Windows 10, the application runs without any dependencies
+
+On Win 7, 8.1 you need to install [.NET Framework 4.7.2](https://www.google.com/search?q=download+.net+framework+4.7.2)
+
+Unzip the latest release package from [this link](https://github.com/ehsabd/word-comments-analyzer/releases/) and extract it. Run *WordCommentsAnalyzer.exe*. Good luck with your research.
+
+If the latest version did not work on your machine you may try Release-v2.0.3.0
 
 For more information about usage see this article:[https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6137411/](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6137411/)
 
@@ -16,8 +25,4 @@ For more information about usage see this article:[https://www.ncbi.nlm.nih.gov/
 > Associate Professor,  
 > School of Liberal Arts and Sciences,  
 > RV University, Bengaluru
-
-## Possible Future Development
-
-- Port to a cross-platform code base by using Javascript (Angular or React) and Electron.
 

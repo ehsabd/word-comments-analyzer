@@ -10,22 +10,51 @@ namespace WordCommentsAnalyzer
     public partial class Main : Form
     {
 
-        public static string GetTimestampedExportPath(string baseFolder = "Exports", string filePrefix = "export")
+        private static string GetTimestampedExportPath(DateTime timestamp, string baseFolder, string filePrefix)
         {
             // Create Exports folder if it doesn't exist
             string exportsFolder = Path.Combine(WorkingDirectory, baseFolder);
             Directory.CreateDirectory(exportsFolder);
 
             // Generate timestamp (Year-Month-Day_Hour-Minute-Second)
-            string timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+            string timestampText = timestamp.ToString("yyyy-MM-dd_HH-mm-ss");
 
             // Combine to create full file path
-            string fileName = $"{filePrefix}_{timestamp}.txt";
+            string fileName = $"{filePrefix}_{timestampText}.txt";
             string outputFilePath = Path.Combine(exportsFolder, fileName);
 
             return outputFilePath;
         }
 
+        public void ExportCodesToMarkdownFiles(IEnumerable<string> codesInHierarchy)
+        {
+            if (Models.CodesDictionary == null || Models.CodesDictionary.Count == 0)
+            {
+                Log("Models.CodesDictionary is empty or null.");
+                return;
+            }
+
+            var exportTime = DateTime.Now;
+            ExportCodesToMarkdown(
+                GetTimestampedExportPath(exportTime, "Exports", "export"),
+                Models.CodesDictionary.Values,
+                "Code Export",
+                exportTime);
+
+            var hierarchyCodeValues = new HashSet<string>(
+                codesInHierarchy ?? Enumerable.Empty<string>(),
+                StringComparer.OrdinalIgnoreCase);
+            var hierarchyCodes = Models.CodesDictionary
+                .Where(kvp => hierarchyCodeValues.Contains(kvp.Key))
+                .Select(kvp => kvp.Value);
+
+            // NOTE: I used V2 in order to intentionally avoid to include the word "hierarchy" in exported file name. Because when the two files of export output and code hierarchy are fed into an LLM I want it not to get confused which one presents the code hierarchy
+            ExportCodesToMarkdown(
+                GetTimestampedExportPath(exportTime, "Exports", "export_V2"),
+                hierarchyCodes,
+                "Code Export (Only Codes in Code Hierarchy)",
+                exportTime);
+        }
 
         public void ExportCodesToMarkdown(string outputFilePath)
         {
@@ -35,19 +64,30 @@ namespace WordCommentsAnalyzer
                 return;
             }
 
+            ExportCodesToMarkdown(
+                outputFilePath,
+                Models.CodesDictionary.Values,
+                "Code Export",
+                DateTime.Now);
+        }
+
+        private void ExportCodesToMarkdown(
+            string outputFilePath,
+            IEnumerable<Models.Code> codes,
+            string exportTitle,
+            DateTime generatedAt)
+        {
             // Build and sort by frequency only (most frequent first)
-            var sortedCodes = Models.CodesDictionary
-                .Select(kvp => kvp.Value)
+            var sortedCodes = codes
                 .OrderByDescending(code => code.DataExtractsCount)
                 .ToList();
 
             using (StreamWriter writer = new StreamWriter(outputFilePath, false, Encoding.UTF8))
             {
                 // Write header
-                writer.WriteLine("# Code Export");
-                writer.WriteLine($"Generated on: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+                writer.WriteLine($"Generated on: {generatedAt:yyyy-MM-dd HH:mm:ss}");
                 writer.WriteLine();
-                writer.WriteLine($"Total Codes: {Models.CodesDictionary.Count}");
+                writer.WriteLine($"Total Codes: {sortedCodes.Count}");
                 writer.WriteLine();
                 writer.WriteLine("---");
                 writer.WriteLine();
@@ -90,7 +130,7 @@ namespace WordCommentsAnalyzer
                 writer.WriteLine("# End of Export");
             }
 
-            Log($"Export completed successfully to: {outputFilePath}");
+            Log($"{exportTitle} completed successfully to: {outputFilePath}");
         }
 
     }

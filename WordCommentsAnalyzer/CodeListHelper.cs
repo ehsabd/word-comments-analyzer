@@ -9,7 +9,7 @@ namespace WordCommentsAnalyzer
 {
     class CodeListHelper
     {
-        public static void UpdateCodesListView(ref ListView listViewCodes, IEnumerable<Models.CodeStat> codeStats, List<string> codesToHighlight = null)
+        public static void UpdateCodesListView(ref ListView listViewCodes, IEnumerable<Models.CodeStat> codeStats, List<string> codesToHighlight)
         {
             ColumnHeader columnCode = new ColumnHeader();
             ColumnHeader columnFreq = new ColumnHeader();
@@ -35,12 +35,9 @@ namespace WordCommentsAnalyzer
                 var code = cs.Code.Value;
                 var item = new ListViewItem(new string[] { code, cs.Frequency.ToString() });
                 item.Name = code;
-                if (codesToHighlight != null)
-                {
                     SetListViewItemColor(item,
                         codesToHighlight.Contains(code) //NOTE that codesInHierarchy is built locally in this method
                         );
-                }
                 listViewCodes.Items.Add(item);
             }
 

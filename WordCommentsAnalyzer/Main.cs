@@ -102,10 +102,19 @@ namespace WordCommentsAnalyzer
             }
         }
 
+        private List<string> GetCodesInHierarchy()
+        {
+            if (treeViewHierarchy.Nodes.Count == 0)
+            {
+                return new List<string>();
+            }
+
+            return TreeNodeRecursive.GetTreeNodeTextsTopDownRecursive(treeViewHierarchy.Nodes[0]);
+        }
+
         private bool IsCodeInHierarchy(string code)
         {
-            var codesInHierarchy = TreeNodeRecursive.GetTreeNodeTextsTopDownRecursive(treeViewHierarchy.Nodes[0]);
-            return codesInHierarchy.Contains(code);
+            return GetCodesInHierarchy().Contains(code, StringComparer.OrdinalIgnoreCase);
         }
 
         public void SetWorkingDirectory(string path)
@@ -142,7 +151,7 @@ namespace WordCommentsAnalyzer
         {
             Log("Exporting");
 
-            ExportCodesToMarkdown(GetTimestampedExportPath());
+            ExportCodesToMarkdownFiles(GetCodesInHierarchy());
             
         }
 
@@ -558,7 +567,7 @@ namespace WordCommentsAnalyzer
                 bwFilterCodes.RunWorkerAsync();
             }
             else {
-                var codesInHierarchy = TreeNodeRecursive.GetTreeNodeTextsTopDownRecursive(treeViewHierarchy.Nodes[0]);
+                var codesInHierarchy = GetCodesInHierarchy();
 #if DEBUG
                 
                 Log( "Codes in hierarchy: " + Models.CodesDictionary.Keys.Intersect(codesInHierarchy).Count());
