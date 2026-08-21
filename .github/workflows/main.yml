@@ -1,4 +1,4 @@
-name: Build WordCommentsAnalyzer
+name: Build WordCommentsAnalyzer .NET Framework 4.7.2 WinForms
 
 on:
   push:
@@ -9,10 +9,6 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-
-    strategy:
-      matrix:
-        framework: [v4.5.2, v4.7.2]
 
     steps:
     - name: Checkout code
@@ -36,27 +32,24 @@ jobs:
         msbuild "WordCommentsAnalyzer/WordCommentsAnalyzer.csproj" `
           /p:Configuration=Release `
           /p:Platform="Any CPU" `
-          /p:TargetFrameworkVersion=${{ matrix.framework }} `
-          /p:OutputPath="..\bin\Release-${{ matrix.framework }}" `
+          /p:TargetFrameworkVersion=v4.7.2 `
+          /p:OutputPath="..\bin\Release" `
           /p:RestorePackages=false `
           /p:AutoGenerateBindingRedirects=true `
           /p:GenerateBindingRedirectsOutputType=true
 
     - name: Check build
       run: |
-        $dir = "bin\Release-${{ matrix.framework }}"
-        $exe = "$dir\WordCommentsAnalyzer.exe"
-
-        if (Test-Path $exe) {
-          echo "Build successful: $exe"
+        if (Test-Path "bin\Release\WordCommentsAnalyzer.exe") {
+          echo "Build successful"
         } else {
-          echo "Build failed: $exe not found"
+          echo "Build failed"
           exit 1
         }
 
     - name: Upload build artifact
       uses: actions/upload-artifact@v4
       with:
-        name: WordCommentsAnalyzer-${{ matrix.framework }}
-        path: bin/Release-${{ matrix.framework }}/
+        name: WordCommentsAnalyzer
+        path: bin/Release/
         retention-days: 30
