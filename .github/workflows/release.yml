@@ -1,0 +1,65 @@
+name: Release WordCommentsAnalyzer
+
+on:
+  push:
+    tags:
+      - 'v*' # Triggers on any tag starting with 'v' (e.g., v1.0.0, v2.1.0)
+
+permissions:
+  contents: write # Grants permission to create GitHub Releases and upload assets
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Setup NuGet
+      uses: nuget/setup-nuget@v2
+      with:
+        nuget-version: latest
+
+    - name: Restore NuGet packages
+      run: |
+        nuget restore WordCommentsAnalyzer/WordCommentsAnalyzer.csproj `
+          -PackagesDirectory packages
+
+    - name: Build Release
+      run: |
+        msbuild "WordCommentsAnalyzer/WordCommentsAnalyzer.csproj" `
+          /p:Configuration=Release `
+          /p:Platform="Any CPU" `
+          /p:TargetFrameworkVersion=v4.7.2 `
+          /p:OutputPath="..\bin\Release" `
+          /p:RestorePackages=false `
+          /p:AutoGenerateBindingRedirects=true `
+          /p:GenerateBindingRedirectsOutputType=true
+
+    - name: Check build output
+      shell: pwsh
+      run: |
+        if (Test-Path "bin\Release\WordCommentsAnalyzer.exe") {
+          Write-Host "Build verified successfully."
+        } else {
+          Write-Error "Build failed: Executable not found."
+          exit 1
+        }
+
+    - name: Package Release as ZIP
+      shell: pwsh
+      run: |
+        # Creates a single zip containing the executable and its runtime dependencies
+        Compress-Archive -Path "bin\Release\*" -DestinationPath "WordCommentsAnalyzer-${{ github.ref_name }}.zip"
+
+    - name: Publish GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: WordCommentsAnalyzer-${{ github.ref_name }}.zip
+        generate_release_notes: true # Automatically populates release notes from commits & PRs
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
