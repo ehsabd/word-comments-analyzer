@@ -166,8 +166,8 @@ fnAdjustTable();
         private void Form_Load(object sender, EventArgs e)
         {
 
-            CodeListHelper.UpdateCodesListView(ref listViewCodesA, Models.CodeStatList);
-            CodeListHelper.UpdateCodesListView(ref listViewCodesB, Models.CodeStatList);
+            CodeListHelper.UpdateCodesListView(ref listViewCodesA, Models.CodeStatList, new List<string>());
+            CodeListHelper.UpdateCodesListView(ref listViewCodesB, Models.CodeStatList, new List<string>());
             UpdateFilesListView();
 
             listViewCodesA.CheckBoxes = true;

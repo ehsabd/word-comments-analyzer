@@ -75,6 +75,7 @@
             this.panelSeparator = new System.Windows.Forms.Panel();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.buttonAnalyze = new System.Windows.Forms.Button();
+            this.buttonExport = new System.Windows.Forms.Button();
             this.textWorkingDir = new System.Windows.Forms.TextBox();
             this.buttonBrowse = new System.Windows.Forms.Button();
             this.labelWD = new System.Windows.Forms.Label();
@@ -566,6 +567,17 @@
             this.buttonAnalyze.UseVisualStyleBackColor = true;
             this.buttonAnalyze.Click += new System.EventHandler(this.buttonAnalyze_Click);
             // 
+            // buttonExport
+            // 
+            this.buttonExport.Location = new System.Drawing.Point(780, 0);
+            this.buttonExport.Name = "buttonExport";
+            this.buttonExport.Size = new System.Drawing.Size(90, 36);
+            this.buttonExport.TabIndex = 4;
+            this.buttonExport.Text = "Export";
+            this.buttonExport.UseVisualStyleBackColor = true;
+            this.buttonExport.Click += new System.EventHandler(this.buttonExport_Click);
+           
+            // 
             // textWorkingDir
             // 
             this.textWorkingDir.Location = new System.Drawing.Point(115, 7);
@@ -660,9 +672,10 @@
             this.panelWorkingDirBrowseAnalyze.Controls.Add(this.textWorkingDir);
             this.panelWorkingDirBrowseAnalyze.Controls.Add(this.buttonBrowse);
             this.panelWorkingDirBrowseAnalyze.Controls.Add(this.buttonAnalyze);
+            this.panelWorkingDirBrowseAnalyze.Controls.Add(this.buttonExport);
             this.panelWorkingDirBrowseAnalyze.Location = new System.Drawing.Point(0, 40);
             this.panelWorkingDirBrowseAnalyze.Name = "panelWorkingDirBrowseAnalyze";
-            this.panelWorkingDirBrowseAnalyze.Size = new System.Drawing.Size(822, 35);
+            this.panelWorkingDirBrowseAnalyze.Size = new System.Drawing.Size(950, 35);
             this.panelWorkingDirBrowseAnalyze.TabIndex = 11;
             // 
             // buttonVisualize
@@ -852,6 +865,7 @@
         private System.Windows.Forms.ColumnHeader columnCodesorFile;
         private System.Windows.Forms.Panel panelSeparator;
         private System.Windows.Forms.Button buttonAnalyze;
+        private System.Windows.Forms.Button buttonExport;
         private System.Windows.Forms.TextBox textWorkingDir;
         private System.Windows.Forms.Button buttonBrowse;
         private System.Windows.Forms.Label labelWD;
