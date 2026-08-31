@@ -1,0 +1,55 @@
+name: Build WordCommentsAnalyzer .NET Framework 4.7.2 WinForms
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Setup NuGet
+      uses: nuget/setup-nuget@v2
+      with:
+        nuget-version: latest
+
+    - name: Restore NuGet packages
+      run: |
+        nuget restore WordCommentsAnalyzer/WordCommentsAnalyzer.csproj `
+          -PackagesDirectory packages
+
+    - name: Build
+      run: |
+        msbuild "WordCommentsAnalyzer/WordCommentsAnalyzer.csproj" `
+          /p:Configuration=Release `
+          /p:Platform="Any CPU" `
+          /p:TargetFrameworkVersion=v4.7.2 `
+          /p:OutputPath="..\bin\Release" `
+          /p:RestorePackages=false `
+          /p:AutoGenerateBindingRedirects=true `
+          /p:GenerateBindingRedirectsOutputType=true
+
+    - name: Check build
+      run: |
+        if (Test-Path "bin\Release\WordCommentsAnalyzer.exe") {
+          echo "Build successful"
+        } else {
+          echo "Build failed"
+          exit 1
+        }
+
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: WordCommentsAnalyzer
+        path: bin/Release/
+        retention-days: 30
